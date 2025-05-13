@@ -3,7 +3,7 @@ library(tidyverse)
 library(paletteer)
 
 #### ODE setup
-M2 <- function(times, state, parms) {
+M2 = function(times, state, parms) {
   with(as.list(c(state, parms)), {
     dH_dt = (h1 * o1 * P1H) + (h2 * o2 * P2H) - (c1 * b1 * P1 + c2 * b2 * P2) * H - (d * H)
     dP1H_dt = (b1 * P1 * H) + DL * (e1H * R1 * a1 * P1H * S) - (o1 + m1) * P1H
