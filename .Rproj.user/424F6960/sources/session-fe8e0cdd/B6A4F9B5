@@ -1,0 +1,27 @@
+{
+    "id": "B6A4F9B5",
+    "path": "~/NTU/Simulation/LV model (Low H).R",
+    "project_path": "LV model (Low H).R",
+    "type": "r_source",
+    "hash": "1781069674",
+    "contents": "",
+    "dirty": false,
+    "created": 1743074334597.0,
+    "source_on_save": false,
+    "relative_order": 6,
+    "properties": {
+        "tempName": "Untitled2",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "95,32",
+        "scrollLine": "0"
+    },
+    "folds": "5|25|31|0|\n32|22|36|0|\n37|20|57|0|\n",
+    "lastKnownWriteTime": 1744789989,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1744875327457,
+    "read_only": false,
+    "read_only_alternatives": []
+}

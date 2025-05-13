@@ -1,0 +1,27 @@
+{
+    "id": "551AC4ED",
+    "path": "~/NTU/Simulation/Plotting.R",
+    "project_path": "Plotting.R",
+    "type": "r_source",
+    "hash": "3690366777",
+    "contents": "",
+    "dirty": false,
+    "created": 1738724112832.0,
+    "source_on_save": false,
+    "relative_order": 8,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "69,0",
+        "scrollLine": "53"
+    },
+    "folds": "107|34|126|0|\n127|34|143|0|\n144|34|177|0|\n197|30|214|0|\n215|30|234|0|\n235|30|258|4|\n259|30|283|2|\n",
+    "lastKnownWriteTime": 1747141577,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1747141577439,
+    "read_only": false,
+    "read_only_alternatives": []
+}

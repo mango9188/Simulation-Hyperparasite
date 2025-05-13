@@ -1,0 +1,309 @@
+library(tidyverse)
+library(paletteer)
+library(patchwork)
+##Read the simulation result
+comp_out = readRDS("Pre1Sim3NC3")
+
+comp_out = filter(comp_out, r<5)
+#comp_out = comp_out[,-c(11:17)]
+#saveRDS(comp_out, "Pre1Sim3NC3")
+####Theme setting----
+A = 
+theme_bw()+
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 20),
+    axis.text.x = element_text(size = 15),
+    axis.text.y = element_text(size = 15),
+    axis.title.x = element_text(size = 20),
+    axis.title.y = element_text(size = 20),
+    axis.title.y.right = element_text(size = 10),
+    legend.text = element_text(size = 10),
+    legend.text.align = 0)
+theme_set(A)
+
+
+####Plot the result----
+#filter(comp_out, a1 > 0, b1 > 0)
+unique_outcomes = unique(comp_out$Outcome2)
+mycolor = c("TTTTT" = "#BA6338FF",#AC
+            "TFTTT" = "#F0E685FF",#C/P1H
+            "TTFTT" = "#CC9900FF",#C/P2H
+            "FFFTT" = "#CE3D32FF",#C/H
+            "TTFTF" = "#466983FF",#P1+H
+            "FFFTF" = "#0A47FFFF",#P1
+            "TFTFT" = "#749B58FF",#P2+H
+            "FFFFT" = "#64DD17"#P2
+)
+unspecified_outcomes <- setdiff(unique_outcomes, names(mycolor))
+extra_colors <- paletteer_d("ggsci::default_igv")[1:length(unspecified_outcomes)]
+final_colors <- c(mycolor, setNames(extra_colors, unspecified_outcomes))
+
+outcome_labels <- c(
+  "TTTTT" = "Coexistence",
+  "TFTTT" = expression(P[1/H] ~ "excluded"),
+  "TTFTT" = expression(P[2/H] ~ "excluded"),
+  "FFFTT" = expression(P[1] + P[2] ~ "win"),
+  "TTFTF" = expression(P[1] + P[1/H] ~ "win"),
+  "FFFTF" = expression(P[1] ~ "wins"),
+  "TFTFT" = expression(P[2] + P[2/H] ~ "win"),
+  "FFFFT" = expression(P[2] ~ "wins")
+)
+
+ggplot(filter(comp_out, a1 <= 0.5, b1 <= 0.5), aes(x = a1, y = b1, z = Outcome, fill = Outcome2)) +
+  geom_tile() +
+  geom_point(filter(comp_out, Cycle == "T", a1 <= 0.5, b1 <= 0.5), mapping = aes(x = a1, y = b1, shape = Cycle), color = "black", alpha = 0.2)+
+  labs(title = expression(m[1] < m[2]), x = expression(α[1]), y = expression(β[1]))+ #title = "δ = 0 (No vertical transmission)",  ~","~ r == 1.5
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_manual(values = final_colors, labels = outcome_labels) +
+  #scale_fill_manual(values = as.character(paletteer_d("ggsci::default_igv")))+#automatically choose color
+  #scale_fill_manual(values = setNames(paletteer_d("ggsci::default_igv")[1:length(all_comb)], all_comb))+
+  theme(panel.grid = element_blank(),
+        plot.title = element_text(hjust = 0.5, size = 20),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15)) +
+  coord_fixed(ratio = 1)
+
+
+####Plot the result (H as constant)----
+#filter(comp_out, a1 > 0, b1 > 0)
+unique_outcomes = unique(comp_out$Outcome2)
+mycolor = c("TTTT" = "#BA6338FF",#AC
+            "FTTT" = "#F0E685FF",#C/P1H
+            "TFTT" = "#CC9900FF",#C/P2H
+            "TFTF" = "#466983FF",#P1+H
+            "FTFT" = "#749B58FF"#P2+H
+)
+unspecified_outcomes <- setdiff(unique_outcomes, names(mycolor))
+extra_colors <- paletteer_d("ggsci::default_igv")[1:length(unspecified_outcomes)]
+final_colors <- c(mycolor, setNames(extra_colors, unspecified_outcomes))
+
+outcome_labels <- c(
+  "TTTT" = "Coexistence",
+  "FTTT" = expression(P[1/H] ~ "excluded"),
+  "TFTT" = expression(P[2/H] ~ "excluded"),
+  "TFTF" = expression(P[1] + P[1/H] ~ "win"),
+  "FTFT" = expression(P[2] + P[2/H] ~ "win")
+)
+
+ggplot(comp_out, aes(x = a1, y = b1, z = Outcome, fill = Outcome2)) +
+  geom_tile() +
+  labs(title = expression(m[1] < m[2] ~","~ "real"), x = expression(α[1]), y = expression(β[1])) + #title = "δ = 0 (No vertical transmission)",  ~","~ r == 1.5
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_manual(values = final_colors, labels = outcome_labels) +
+  #scale_fill_manual(values = as.character(paletteer_d("ggsci::default_igv")))+#automatically choose color
+  #scale_fill_manual(values = setNames(paletteer_d("ggsci::default_igv")[1:length(all_comb)], all_comb))+
+  theme(panel.grid = element_blank(),
+        plot.title = element_text(hjust = 0.5, size = 20),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15)) +
+  coord_fixed(ratio = 1)
+
+
+############Plot the heatmap for K------------
+#filter(filter(comp_out, round(a1, 3) >= 0.5, round(b1, 3) >= 0.45)
+ggplot(comp_out, aes(x = a1, y = K, z = Outcome, fill = Outcome2)) +
+  geom_tile() +
+  geom_point(filter(comp_out, Cycle == "T"), mapping = aes(x = a1, y = K, shape = Cycle), color = "black", alpha = 0.2)+
+  labs(title = expression(β[1] == 0.2), x = expression(α[1]), y = "K")+
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0.35, 0.5, by = 0.05)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(10, 100, by = 30)) +
+  scale_fill_manual(values = final_colors, labels = outcome_labels) +
+  #scale_fill_manual(values = as.character(paletteer_d("ggsci::default_igv")))+#automatically choose color
+  #scale_fill_manual(values = setNames(paletteer_d("ggsci::default_igv")[1:length(all_comb)], all_comb))+
+  theme(panel.grid = element_blank(),
+        plot.title = element_text(hjust = 0.5, size = 20),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15))+
+  coord_fixed(ratio = 1)
+
+
+############Plot the heatmap for r------------
+ggplot(comp_out, aes(x = a1, y = r, z = Outcome, fill = Outcome2)) +
+  geom_tile() +
+  geom_point(filter(comp_out, Cycle == "T"), mapping = aes(x = a1, y = r, shape = Cycle), color = "black", alpha = 0.2)+
+  labs(title = expression(β[1] == 0.2), x = expression(α[1]), y = "r")+
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0.35, 0.5, by = 0.05)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(1, 4, by = 1)) +
+  scale_fill_manual(values = final_colors, labels = outcome_labels) +
+  #scale_fill_manual(values = as.character(paletteer_d("ggsci::default_igv")))+#automatically choose color
+  #scale_fill_manual(values = setNames(paletteer_d("ggsci::default_igv")[1:length(all_comb)], all_comb))+
+  theme(panel.grid = element_blank(),
+        plot.title = element_text(hjust = 0.5, size = 20),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15))
+
+############Plot the heatmap for m------------
+ggplot(comp_out, aes(x = m1, y = m2, z = Outcome, fill = Outcome2)) +
+  geom_tile() +
+  geom_point(filter(comp_out, Cycle == "T"), mapping = aes(x = m1, y = m2, shape = Cycle), color = "black", alpha = 0.2)+
+  labs(title = expression(), x = expression(m[1]), y = expression(m[2]))+
+  #scale_x_continuous(expand = c(0, 0), breaks = seq(0.01, 0.1, by = 0.01)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0.01, 0.1, by = 0.01)) +
+  scale_fill_manual(values = final_colors, labels = outcome_labels) +
+  #scale_fill_manual(values = as.character(paletteer_d("ggsci::default_igv")))+#automatically choose color
+  #scale_fill_manual(values = setNames(paletteer_d("ggsci::default_igv")[1:length(all_comb)], all_comb))+
+  theme(panel.grid = element_blank(),
+        plot.title = element_text(hjust = 0.5, size = 20),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15))
+
+ggplot(comp_out, aes(x = factor(m1), y = m2, z = Outcome, fill = Outcome2)) +
+  geom_tile() +
+  #geom_point(filter(comp_out, Cycle == "T"), mapping = aes(x = m1, y = m2, shape = Cycle), color = "black", alpha = 0.2)+
+  labs(title = expression(), x = expression(m[1]), y = expression(m[2]))+
+  #scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0.01, 0.1, by = 0.01)) +
+  scale_fill_manual(values = final_colors, labels = outcome_labels) +
+  #scale_fill_manual(values = as.character(paletteer_d("ggsci::default_igv")))+#automatically choose color
+  #scale_fill_manual(values = setNames(paletteer_d("ggsci::default_igv")[1:length(all_comb)], all_comb))+
+  #theme_minimal()+
+  theme(panel.grid = element_blank(),
+        plot.title = element_text(hjust = 0.5, size = 20),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15))
+
+#############Bifurcation diagram--------------
+comp_out %>%
+  select(c(a1, b1, P1H, P2H, P1, P2)) %>%
+  #mutate(Total = P1H + P2H + P1 + P2) %>%
+  pivot_longer(names_to = "Species", values_to = "Abundance", -c(a1, b1)) %>%
+  #gather(key = Species, value = Abundance, -c(a1, b1)) %>% #using gather()
+  filter(b1 == 0.2) %>%
+  ggplot(aes(x = a1, y = Abundance, color = Species)) +
+  geom_line(lwd = 1) + 
+  labs(title = expression(β[1] == 0.2), x = expression(α[1]), y = "Abundance", color = "Species")+
+  scale_colour_manual(labels = 
+                        c("P1" = expression(P[1]), "P1H" = expression(P[1/H]),
+                          "P2" = expression(P[2]), "P2H" = expression(P[2/H]),
+                          "S" = "Host", "H" = "Hyper", "Total" = "Total"),
+                      values = c("P1" = "#BCAAA4", "P1H" = "#82491E",
+                                 "P2" = "#B0BEC5", "P2H" = "#546E7A", 
+                                 "S" = "black", "H" = "red", "Total" = "blue"))
+
+
+#############Bifurcation for r-------------
+comp_out %>%
+  select(c(a1, r, P1H, P2H, P1, P2, S, H)) %>%
+  pivot_longer(names_to = "Species", values_to = "Abundance", -c(a1, r)) %>%
+  #gather(key = Species, value = Abundance, -c(a1, r)) %>% #using gather()
+  filter(round(a1, 3) == 0.45) %>%
+  ggplot(aes(x = r, y = Abundance, color = Species)) +
+  geom_line(lwd = 1) + 
+  labs(title = expression(β[1] == 0.2 ~","~ α[1] == 0.45), x = "r", y = "Abundance", color = "Species")+
+  scale_x_continuous(breaks = seq(1, 22, by = 7)) +
+  scale_colour_manual(labels = 
+                        c("P1" = expression(P[1]), "P1H" = expression(P[1/H]),
+                          "P2" = expression(P[2]), "P2H" = expression(P[2/H]),
+                          "S" = "Host", "H" = "Hyper"),
+                      values = c("P1" = "#BCAAA4", "P1H" = "#82491E",
+                                 "P2" = "#B0BEC5", "P2H" = "#546E7A", 
+                                 "S" = "black", "H" = "red"))
+
+#############Bifurcation for K-------------
+comp_out %>%
+  select(c(a1, K, P1H, P2H, P1, P2, H, S)) %>%
+  pivot_longer(names_to = "Species", values_to = "Abundance", -c(a1, K)) %>%
+  #gather(key = Species, value = Abundance, -c(a1, r)) %>% #using gather()
+  filter(round(a1, 3) == 0.5) %>%
+  ggplot(aes(x = K, y = Abundance, color = Species)) +
+  geom_line(lwd = 1) + 
+  labs(title = expression(β[1] == 0.2 ~","~ α[1] == 0.5), x = "K", y = "Abundance", color = "Species")+
+  scale_y_continuous() +
+  scale_x_continuous(breaks = seq(10, 100, by = 30)) +
+  scale_colour_manual(labels = 
+                        c("P1" = expression(P[1]), "P1H" = expression(P[1/H]),
+                          "P2" = expression(P[2]), "P2H" = expression(P[2/H]),
+                          "S" = "Host", "H" = "Hyper"),
+                      values = c("P1" = "#BCAAA4", "P1H" = "#82491E",
+                                 "P2" = "#B0BEC5", "P2H" = "#546E7A", 
+                                 "S" = "black", "H" = "red"))
+
+
+#############Bifurcation for h-------------
+D = 
+comp_out %>%
+  select(c(r, h2, P1H, P2H, P1, P2, S, H)) %>%
+  pivot_longer(names_to = "Species", values_to = "Abundance", -c(r, h2)) %>%
+  #gather(key = Species, value = Abundance, -c(a1, r)) %>% #using gather()
+  filter(round(r, 3) == 1.5)
+
+  ggplot(filter(D, Species != "H"), aes(x = h2, y = Abundance, color = Species)) +
+  geom_line(filter(D, Species == "H"), mapping = aes(x = h2, y = Abundance/50, color = Species), lwd = 1)+
+  geom_line(lwd = 1) +
+  labs(title = expression(r == 1.5 ~","~ β[1] == 0.2 ~","~ α[1] == 0.35), x = expression(h[2]), y = "Abundance", color = "Species")+
+  scale_y_continuous(sec.axis = sec_axis(~.*50, name = "Abundance of H")) +
+  scale_x_continuous() +
+  scale_colour_manual(labels = 
+                        c("P1" = expression(P[1]), "P1H" = expression(P[1/H]),
+                          "P2" = expression(P[2]), "P2H" = expression(P[2/H]),
+                          "S" = "Host", "H" = "Hyper"),
+                      values = c("P1" = "#BCAAA4", "P1H" = "#82491E",
+                                 "P2" = "#B0BEC5", "P2H" = "#546E7A", 
+                                 "S" = "black", "H" = "red")) +
+    
+  theme(axis.title.y.right = element_text(angle = 90))
+    
+#############Bifurcation for h-------------
+D = 
+comp_out %>%
+  select(c(r, h2, P1H, P2H, P1, P2, S, H)) %>%
+  pivot_longer(names_to = "Species", values_to = "Abundance", -c(r, h2)) %>%
+  #gather(key = Species, value = Abundance, -c(a1, r)) %>% #using gather()
+  filter(round(r, 3) == 1.5)
+
+  ggplot(filter(D, Species != "H"), aes(x = h2, y = Abundance, color = Species)) +
+  geom_line(filter(D, Species == "H"), mapping = aes(x = h2, y = Abundance/50, color = Species), lwd = 1)+
+  geom_line(lwd = 1) +
+  labs(title = expression(r == 1.5 ~","~ β[1] == 0.2 ~","~ α[1] == 0.35), x = expression(h[2]), y = "Abundance", color = "Species")+
+  scale_y_continuous(sec.axis = sec_axis(~.*50, name = "Abundance of H")) +
+  scale_x_continuous() +
+  scale_colour_manual(labels = 
+                        c("P1" = expression(P[1]), "P1H" = expression(P[1/H]),
+                          "P2" = expression(P[2]), "P2H" = expression(P[2/H]),
+                          "S" = "Host", "H" = "Hyper"),
+                      values = c("P1" = "#BCAAA4", "P1H" = "#82491E",
+                                 "P2" = "#B0BEC5", "P2H" = "#546E7A", 
+                                 "S" = "black", "H" = "red")) +
+    
+  theme(axis.title.y.right = element_text(angle = 90))
+
+  
+#############Bifurcation for m-------------
+D = 
+    comp_out %>%
+    select(c(m1, m2, P1, P2, P1H, P2H, H)) %>% #P1, P2, P1H, P2H, H
+    filter(m1 == 0.05, m2 > 0.04) %>%
+    pivot_longer(names_to = "Species", values_to = "Abundance", -c(m1, m2))
+    #gather(key = Species, value = Abundance, -c(a1, r)) %>% #using gather()
+  
+  ggplot(filter(D), aes(x = m2, y = Abundance, color = Species)) +
+    geom_line(lwd = 1) +
+    labs(title = expression(m[1] == 0.05), x = expression(m[2]), y = "Abundance", color = "Species")+
+    scale_y_continuous() +
+    scale_x_continuous(breaks = c(seq(0, 0.1, by = 0.01))) +
+    scale_colour_manual(labels = 
+                          c("P1" = expression(P[1]), "P1H" = expression(P[1/H]),
+                            "P2" = expression(P[2]), "P2H" = expression(P[2/H]),
+                            "S" = "Host", "H" = "Hyper"),
+                        values = c("P1" = "darkorange", "P1H" = "#82491E",
+                                   "P2" = "#B0BEC5", "P2H" = "#546E7A", 
+                                   "S" = "black", "H" = "black")) +
+    
+    theme(axis.title.y.right = element_text(angle = 90))
+  
+  ggsave("fix m1_3.png", width = 15, height = 11.25, units = "cm", dpi = 3200)
+  
