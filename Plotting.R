@@ -2,7 +2,8 @@ library(tidyverse)
 library(paletteer)
 library(patchwork)
 ##Read the simulation result
-comp_out = readRDS("Pre1Sim3NC3")
+comp_out = readRDS("Pre4Sim5")
+comp_out = mutate(comp_out, total = P1+P2+P1H+P2H)
 
 comp_out = filter(comp_out, r<5)
 #comp_out = comp_out[,-c(11:17)]
@@ -24,7 +25,7 @@ theme_set(A)
 
 ####Plot the result----
 #filter(comp_out, a1 > 0, b1 > 0)
-unique_outcomes = unique(comp_out$Outcome2)
+unique_outcomes = unique(comp_out$Outcome)
 mycolor = c("TTTTT" = "#BA6338FF",#AC
             "TFTTT" = "#F0E685FF",#C/P1H
             "TTFTT" = "#CC9900FF",#C/P2H
@@ -285,8 +286,8 @@ comp_out %>%
 #############Bifurcation for m-------------
 D = 
     comp_out %>%
-    select(c(m1, m2, P1, P2, P1H, P2H, H)) %>% #P1, P2, P1H, P2H, H
-    filter(m1 == 0.05, m2 > 0.04) %>%
+    select(c(m1, m2, P1, P2, P1H, P2H, H, S)) %>% #P1, P2, P1H, P2H, H, S
+    filter(m1 == 0.05) %>%
     pivot_longer(names_to = "Species", values_to = "Abundance", -c(m1, m2))
     #gather(key = Species, value = Abundance, -c(a1, r)) %>% #using gather()
   
@@ -294,16 +295,17 @@ D =
     geom_line(lwd = 1) +
     labs(title = expression(m[1] == 0.05), x = expression(m[2]), y = "Abundance", color = "Species")+
     scale_y_continuous() +
-    scale_x_continuous(breaks = c(seq(0, 0.1, by = 0.01))) +
+    scale_x_continuous(breaks = c(seq(0, 0.8, by = 0.01))) +
     scale_colour_manual(labels = 
                           c("P1" = expression(P[1]), "P1H" = expression(P[1/H]),
                             "P2" = expression(P[2]), "P2H" = expression(P[2/H]),
                             "S" = "Host", "H" = "Hyper"),
-                        values = c("P1" = "darkorange", "P1H" = "#82491E",
+                        values = c("P1" = "#BCAAA4", "P1H" = "#82491E",
                                    "P2" = "#B0BEC5", "P2H" = "#546E7A", 
-                                   "S" = "black", "H" = "black")) +
+                                   "S" = "#00AF66", "H" = "#C03728",
+                                   "total" = "black")) +
     
     theme(axis.title.y.right = element_text(angle = 90))
   
-  ggsave("fix m1_3.png", width = 15, height = 11.25, units = "cm", dpi = 3200)
+  ggsave("All in m2 00536.png", width = 15, height = 11, units = "cm", dpi = 1600)
   
