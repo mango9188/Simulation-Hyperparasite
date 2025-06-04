@@ -2,8 +2,8 @@
 
 parms = list(
   r = 1, K = 10,
-  a1 = 0.4, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
-  b1 = 0.25, b2 = 0.45, m1 = 0.05, m2 = 0.055, e1H = 0.5, e2H = 0.5,
+  a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
+  b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.06, e1H = 0.5, e2H = 0.5,
   o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
 
 library(rootSolve)
@@ -65,7 +65,7 @@ for(i in 1:dim(comp_out)[1]){
       {
         uniroot(CP, lower = 0, upper = 1, tol = 1e-16)$root
       }, error = function(e){
-        NA #S1 and S2 do not cross over, system will predictably follow exploitative competition no matter how large the H is.
+        NA #S1 and S2 do not cross over, system will predictably follow exploitative competition that only consist S, P1 and P2 no matter how large the H is.
       })
 }
 
@@ -74,3 +74,4 @@ comp_out$Outcome.ZeroH =
          ifelse(comp_out[, 3] > comp_out[, 4], "P2(+H)", "Coexist"))
 
 View(comp_out)
+

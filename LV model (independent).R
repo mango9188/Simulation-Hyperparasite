@@ -16,13 +16,13 @@ M2 <- function(times, state, parms) {
 
 ### Model parameters ----
 
-times <- seq(0, 50000, by = 0.1)
+times <- seq(0, 30000, by = 0.1)
 #state <- c(H = 1, P1H = 0, P2H = 0, P1 = 2, P2 = 2, S = 5)
 state <- c(H = 0.1, P1H = 0, P2H = 0, P1 = 0.01, P2 = 0.01, S = 0.2)
 #Change alpha and beta--
 parms <- c(r = 1, K = 10,
            a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
-           b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.055, e1H = 0.5, e2H = 0.5,
+           b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.0536, e1H = 0.5, e2H = 0.5,
            o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
 
 ### Model application ----
@@ -35,26 +35,29 @@ tail(pop_size)
 pop_size %>%
   as.data.frame() %>%
   filter(time %% 1 == 0) %>%
-  filter(time < 1000) %>%
+  #filter(time < 500) %>%
   #View()
-  pivot_longer(cols = c("P1","H"), #"H", "P1H", "P2H", "P1", "P2", "S" 
+  pivot_longer(cols = c("H", "P1H", "P2H", "P1", "P2", "S" ), #"H", "P1H", "P2H", "P1", "P2", "S" 
              names_to = "species", values_to = "biomass") %>%
   #filter(species == c("H","S")) %>%
   ggplot(mapping = aes(x = time, y = biomass, color = species)) +
   labs(x = "Time", y = "Biomass") +  #, title = expression(P[1]~"win") paste0("r =", parms["r"])) expression(α[1] == 0.35)
   geom_line(lwd = 1) +
-  geom_hline(yintercept = 0.0026, color = "black", linetype = "dashed", size = 1) +
+  #geom_hline(yintercept = 0.133791930, color = "black", linetype = "dashed", size = 1) +
   scale_colour_manual(labels = c("H" = "Hyper", "P1" = expression(P[1]), "P1H" = expression(P[1/H]), "P2" = expression(P[2]), "P2H" = expression(P[2/H]), "S" = "Host"),
                       values = c("H" = "#C03728", "P1" = "#BCAAA4", "P1H" = "#82491E",
                                  "P2" = "#B0BEC5", "P2H" = "#546E7A", "S" = "#00AF66"))
+
+ggsave("P2 in m2 00536 Tless500.png", width = 20, height = 11.25, units = "cm", dpi = 1600)
 
 ## Plotting the per capita growth rate
 pop_size %>%
   as.data.frame() %>%
   filter(time %% 1 == 0) %>%
-  filter(time > 100) %>%
+  #filter(time > 100) %>%
   #View()
-  pivot_longer(cols = c("H","per_P1", "P1"), #"H", "P1H", "P2H", "P1", "P2", "S" 
+  pivot_longer(cols = c("per_H", "per_P1H", "per_P2H", "per_P1", "per_P2", "per_S"), 
+               #"H", "P1H", "P2H", "P1", "P2", "S" 
                #"per_H", "per_P1H", "per_P2H", "per_P1", "per_P2", "per_S"
                names_to = "species", values_to = "rate") %>%
   #filter(species == c("H","S")) %>%
