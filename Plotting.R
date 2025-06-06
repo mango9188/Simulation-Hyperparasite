@@ -2,7 +2,7 @@ library(tidyverse)
 library(paletteer)
 library(patchwork)
 ##Read the simulation result
-comp_out = readRDS("Pre4Sim5")
+comp_out = readRDS("Pre4Sim1")
 comp_out = mutate(comp_out, total = P1+P2+P1H+P2H)
 
 comp_out = filter(comp_out, r<5)
@@ -146,7 +146,8 @@ ggplot(comp_out, aes(x = a1, y = r, z = Outcome, fill = Outcome2)) +
 ############Plot the heatmap for m------------
 ggplot(comp_out, aes(x = m1, y = m2, z = Outcome, fill = Outcome2)) +
   geom_tile() +
-  geom_point(filter(comp_out, Cycle == "T"), mapping = aes(x = m1, y = m2, shape = Cycle), color = "black", alpha = 0.2)+
+  #geom_point(filter(comp_out, Cycle == "T"), mapping = aes(x = m1, y = m2, shape = Cycle), color = "black", alpha = 0.2)+
+  geom_point(mapping = aes(x = m1, y = m2, shape = Stability), color = "black", alpha = 0.1)+
   labs(title = expression(), x = expression(m[1]), y = expression(m[2]))+
   #scale_x_continuous(expand = c(0, 0), breaks = seq(0.01, 0.1, by = 0.01)) +
   scale_y_continuous(expand = c(0, 0), breaks = seq(0.01, 0.1, by = 0.01)) +
@@ -286,13 +287,14 @@ comp_out %>%
 #############Bifurcation for m-------------
 D = 
     comp_out %>%
-    select(c(m1, m2, P1, P2, P1H, P2H, H, S)) %>% #P1, P2, P1H, P2H, H, S
+    select(c(m1, m2, P1, P2, P1H, P2H, H, S, Stability)) %>% #P1, P2, P1H, P2H, H, S
     filter(m1 == 0.05) %>%
-    pivot_longer(names_to = "Species", values_to = "Abundance", -c(m1, m2))
+    pivot_longer(names_to = "Species", values_to = "Abundance", -c(m1, m2, Stability))
     #gather(key = Species, value = Abundance, -c(a1, r)) %>% #using gather()
   
-  ggplot(filter(D), aes(x = m2, y = Abundance, color = Species)) +
-    geom_line(lwd = 1) +
+  ggplot(D, aes(x = m2, y = Abundance, color = Species, shape = Stability)) +
+    geom_point() +
+    #scale_linetype_manual(values = c("Stable" = "solid", "Unstable" = "dashed")) +
     labs(title = expression(m[1] == 0.05), x = expression(m[2]), y = "Abundance", color = "Species")+
     scale_y_continuous() +
     scale_x_continuous(breaks = c(seq(0, 0.8, by = 0.01))) +
@@ -304,7 +306,7 @@ D =
                                    "P2" = "#B0BEC5", "P2H" = "#546E7A", 
                                    "S" = "#00AF66", "H" = "#C03728",
                                    "total" = "black")) +
-    
+    scale_shape_manual(values = c("Stable" = 16, "Unstable" = 3)) + 
     theme(axis.title.y.right = element_text(angle = 90))
   
   ggsave("All in m2 00536.png", width = 15, height = 11, units = "cm", dpi = 1600)

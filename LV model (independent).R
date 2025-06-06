@@ -16,28 +16,31 @@ M2 <- function(times, state, parms) {
 
 ### Model parameters ----
 
-times <- seq(0, 30000, by = 0.1)
+times <- seq(0, 5000, by = 0.1)
 #state <- c(H = 1, P1H = 0, P2H = 0, P1 = 2, P2 = 2, S = 5)
 state <- c(H = 0.1, P1H = 0, P2H = 0, P1 = 0.01, P2 = 0.01, S = 0.2)
 #Change alpha and beta--
 parms <- c(r = 1, K = 10,
            a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
            b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.0536, e1H = 0.5, e2H = 0.5,
-           o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
+           o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 90, c2 = 90, d = 1, DL = 0)
+
+#parms <- c(r = 1, K = 10,a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.0536, e1H = 0.5, e2H = 0.5,o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
 
 ### Model application ----
 pop_size = ode(func = M2, times = times, y = state, parms = parms)
 
 tail(pop_size)
 
+
 ### Plot the result ----
 ## Plotting
 pop_size %>%
   as.data.frame() %>%
   filter(time %% 1 == 0) %>%
-  #filter(time < 500) %>%
+  #filter(time < 100) %>%
   #View()
-  pivot_longer(cols = c("H", "P1H", "P2H", "P1", "P2", "S" ), #"H", "P1H", "P2H", "P1", "P2", "S" 
+  pivot_longer(cols = c("H"), #"H", "P1H", "P2H", "P1", "P2", "S" 
              names_to = "species", values_to = "biomass") %>%
   #filter(species == c("H","S")) %>%
   ggplot(mapping = aes(x = time, y = biomass, color = species)) +
@@ -48,9 +51,9 @@ pop_size %>%
                       values = c("H" = "#C03728", "P1" = "#BCAAA4", "P1H" = "#82491E",
                                  "P2" = "#B0BEC5", "P2H" = "#546E7A", "S" = "#00AF66"))
 
-ggsave("P2 in m2 00536 Tless500.png", width = 20, height = 11.25, units = "cm", dpi = 1600)
+#ggsave("P2 in m2 00536 Tless500.png", width = 20, height = 11.25, units = "cm", dpi = 1600)
 
-## Plotting the per capita growth rate
+### Plotting the per capita growth rate----
 pop_size %>%
   as.data.frame() %>%
   filter(time %% 1 == 0) %>%
@@ -86,3 +89,35 @@ A =
     legend.text = element_text(size = 10),
     legend.text.align = 0)
 theme_set(A)
+
+
+### Calculate the S* of each time step
+pop_size =
+  pop_size %>%
+  as.data.frame() %>%
+  mutate(
+       S2 = with(as.list(parms), {
+         ((b2 * H + m2) * (m2 + o2))/ (e2 * a2 * (m2 + o2) + e2H * psi2 * a2 * b2 * H)}),
+       S1 = with(as.list(parms), {
+         ((b1 * H + m1) * (m1 + o1))/ (e1 * a1 * (m1 + o1) + e1H * psi1 * a1 * b1 * H)})
+       )
+
+## Plotting
+pop_size %>%
+  as.data.frame() %>%
+  filter(time %% 1 == 0) %>%
+  #filter(time < 500) %>%
+  #View()
+  pivot_longer(cols = c("H", "P1", "P2", "S1", "S2" ), #"H", "P1H", "P2H", "P1", "P2", "S" 
+               names_to = "species", values_to = "biomass") %>%
+  #filter(species == c("H","S")) %>%
+  ggplot(mapping = aes(x = time, y = biomass, color = species)) +
+  labs(x = "Time", y = "Biomass") +  #, title = expression(P[1]~"win") paste0("r =", parms["r"])) expression(α[1] == 0.35)
+  geom_line(lwd = 1) +
+  #geom_hline(yintercept = 0.133791930, color = "black", linetype = "dashed", size = 1) +
+  scale_colour_manual(labels = c("H" = "Hyper", "P1" = expression(P[1]), "P1H" = expression(P[1/H]), "P2" = expression(P[2]), "P2H" = expression(P[2/H]), "S" = "Host"),
+                      values = c("H" = "#C03728", "P1" = "#BCAAA4", "P1H" = "#82491E",
+                                 "P2" = "#B0BEC5", "P2H" = "#546E7A", "S" = "#00AF66",
+                                 "S1" = "#5e4a59", "S2" = "#a45ea1"))
+
+tail(pop_size)

@@ -9,17 +9,17 @@ mutate(comp_out,
        True.Ratio = (b1 * H) / (m1 + o1))  #P1H*P1 = (b1 * H) / (m1 + o1)
 
 
-parms <- list(#H = 0.13, #0.133791930
+parms <- list(H = 0.133791930, #0.133791930
            r = 1, K = 10,
            a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
            b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.0536, e1H = 0.5, e2H = 0.5,
            o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
 
 parms = list(
-  H = 0.0478018,
+  H = 0.122431816,
   r = 1, K = 10,
   a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
-  b1 = 0.05, b2 = 0.45, m1 = 0.05, m2 = 0.055, e1H = 0.5, e2H = 0.5,
+  b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.055, e1H = 0.5, e2H = 0.5,
   o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
 
 parms = list(
@@ -30,6 +30,19 @@ parms = list(
   o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
 
 ###Mono-culture equilibrium----
+Equilibrium = 
+  with(parms, {
+    S1 = ((b1 * H + m1) * (m1 + o1))/ (e1 * a1 * (m1 + o1) + e1H * psi1 * a1 * b1 * H)
+    S2 = ((b2 * H + m2) * (m2 + o2))/ (e2 * a2 * (m2 + o2) + e2H * psi2 * a2 * b2 * H)
+    P1 = r * (1 - (S1/K)) * (m1 + o1) / (a1 * (m1 + o1 + psi1 * b1 * H))
+    P2 = r * (1 - (S2/K)) * (m2 + o2) / (a2 * (m2 + o2 + psi2 * b2 * H))
+    P1H = P1 * (b1 * H) / (m1 + o1)
+    P2H = P2 * (b2 * H) / (m2 + o2)
+    return(c(P1H, P2H, P1, P2, S1, S2))
+  })
+
+parms[c('P1H', 'P2H', 'P1', 'P2', 'S1', 'S2')] = Equilibrium
+
 S1 =
   with(parms, {
     ((b1 * H + m1) * (m1 + o1))/ (e1 * a1 * (m1 + o1) + e1H * psi1 * a1 * b1 * H)
@@ -45,10 +58,20 @@ P1 =
   with(parms, {
     r * (1 - (S1/K)) * (m1 + o1) / (a1 * (m1 + o1 + psi1 * b1 * H))
   })
+
+P1 = 
+  with(parms, {
+    (d*(o1+m1))/(b1*h1*o1-c1*b1*(o1+m1))
+  })
   
 P2 = 
   with(parms, {
     r * (1 - (S2/K)) * (m2 + o2) / (a2 * (m2 + o2 + psi2 * b2 * H))
+  })
+
+P2 = 
+  with(parms, {
+    (d*(o2+m2))/(b2*h2*o2-c2*b2*(o2+m2))
   })
 
 P1H = 
@@ -105,11 +128,12 @@ Equilibrium =
     P2 = (B1 * r * (1 - S1 / K) - D1 * d * H) / (D2 * B1 - D1 * B2)
     P1H = A1 * P1
     P2H = A2 * P2
-    return(c(a1, b1, H, P1H, P2H, P1, P2, S1))
+    return(c(P1H, P2H, P1, P2, S1, S2))
   })
 
-names(Equilibrium) = c("a1", "b1", "H", "P1H", "P2H", "P1", "P2", "S")
+names(Equilibrium) = c('P1H', 'P2H', 'P1', 'P2', 'S1', 'S2')
 Equilibrium
+parms[c('P1H', 'P2H', 'P1', 'P2', 'S1', 'S2')] = Equilibrium
 
 with(parms, {
   round ((h1 * o1 * A1 - c1 * b1 *H) * P1, 7) == round (d * H - (h1 * o1 * A1 - c1 * b1 *H) * P2, 7)
