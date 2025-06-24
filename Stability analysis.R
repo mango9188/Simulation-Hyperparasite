@@ -167,12 +167,12 @@ with(parms, {
 ####Stability analysis for for-loop-----
 parms <- list(r = 1, K = 10,
            a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
-           b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.05, e1H = 0.5, e2H = 0.5,
+           b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.055, e1H = 0.5, e2H = 0.5,
            o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
 
 for(i in 1:dim(comp_out)[1]){
-  parms["m1"] = comp_out[i, "m1"]
-  parms["m2"] = comp_out[i, "m2"]
+  parms["a1"] = comp_out[i, "a1"]
+  parms["b1"] = comp_out[i, "b1"]
   parms[c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')] = comp_out[i, c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')]
   
   ifelse(with(parms, {

@@ -4,12 +4,12 @@ library(tidyverse)
 parms = c(H = 0,
            r = 1, K = 10,
            a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
-           b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.06, e1H = 0.5, e2H = 0.5,
+           b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.055, e1H = 0.5, e2H = 0.5,
            o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
 
 ###Create a parameter space with analytic way----
 
-comp_out = expand.grid(H = seq(0, 1, by = 0.01))
+comp_out  = expand.grid(H = seq(0, 0.5, by = 0.01))
 
 
 comp_out <- as.data.frame(cbind(comp_out,
@@ -157,3 +157,57 @@ comp_out %>%
                                  "S1" = "darkblue", "S2" = "darkgreen", "H" = "red"))
 
 
+
+
+##S bifurcation plot----
+library(tidyverse)
+
+parms = c(S = 0,
+          r = 1, K = 10,
+          a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
+          b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.055, e1H = 0.5, e2H = 0.5,
+          o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
+
+comp_out = expand.grid(S = seq(0.1, 8, by = 0.01))
+
+
+comp_out <- as.data.frame(cbind(comp_out,
+                                matrix(0, 
+                                       nrow = dim(comp_out)[1],
+                                       ###dim(data)[1] is the number of row of data; [2] is col
+                                       ncol = 2))) #Number = number of state variable
+names(comp_out) <- c("S", "H1", "H2")
+
+comp_out[, "H1"] = with((as.list(c(comp_out, parms))), {
+  H1 = (m1 - e1 * a1 * S)/((e1H * psi1 * a1 * b1 * S)/ (m1 + o1) - b1)
+  return(H1)
+})
+
+comp_out[, "H2"] = with((as.list(c(comp_out, parms))), {
+  H2 = (m2 - e2 * a2 * S)/((e2H * psi2 * a2 * b2 * S)/ (m2 + o2) - b2)
+  return(H2)
+})
+
+
+comp_out$Outcome <- 
+  ifelse(comp_out[, "H1"] > comp_out[, "H2"], "P1+H", 
+         ifelse(comp_out[, "H1"] < comp_out[, "H2"], "P2+H", "Coexist"))
+
+comp_out
+
+comp_out %>%
+  select(c(H1, H2, S)) %>%
+  pivot_longer(names_to = "Hi", values_to = "Abundance", -c(S)) %>%
+  
+  ggplot(comp_out, mapping = aes(x = S, y = Abundance, color = Hi)) +
+  geom_line(lwd = 1)+
+  labs(title = expression(m[1] < m[2]), x = "S", y = expression(H[i]^{"*"}), color = "Hi")+
+  scale_y_continuous() +
+  scale_x_continuous() +
+  scale_colour_manual(labels = 
+                        c("P1" = expression(P[1]), "P1H" = expression(P[1/H]),
+                          "P2" = expression(P[2]), "P2H" = expression(P[2/H]),
+                          "S1" = "Strain 1", "S2" = "Strain 2", "H" = "Hyper"),
+                      values = c("P1" = "#BCAAA4", "P1H" = "#82491E",
+                                 "P2" = "#B0BEC5", "P2H" = "#546E7A", 
+                                 "H1" = "#F596AA", "H2" = "#E83015"))

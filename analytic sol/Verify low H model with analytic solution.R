@@ -9,7 +9,7 @@ mutate(comp_out,
        True.Ratio = (b1 * H) / (m1 + o1))  #P1H*P1 = (b1 * H) / (m1 + o1)
 
 
-parms <- list(H = 0.133791930, #0.133791930
+parms <- list(#H = 0.133791930, #0.133791930
            r = 1, K = 10,
            a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
            b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.0536, e1H = 0.5, e2H = 0.5,
@@ -29,7 +29,7 @@ parms = list(
   b1 = 0.5, b2 = 0.45, m1 = 0.05, m2 = 0.055, e1H = 0.5, e2H = 0.5,
   o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
 
-###Mono-culture equilibrium----
+###Mono-culture equilibrium (need H to solve)----
 Equilibrium = 
   with(parms, {
     S1 = ((b1 * H + m1) * (m1 + o1))/ (e1 * a1 * (m1 + o1) + e1H * psi1 * a1 * b1 * H)
@@ -112,7 +112,49 @@ f <- function(H, parms) {
 }
 root <- uniroot(f, interval = c(0, 1), parms = parms)$root
 
-####Coexist equilibrium----
+
+
+###Mono-culture equilibrium----
+E1 = 
+  with(parms, {
+    A = r/K
+    D = b1 * h1 * o1 - c1 * b1 * (o1 + m1)
+    E = e1H * psi1 * a1
+    f = m1 + o1
+    G = e1H * psi1 * a1 * a1 * d
+    H = psi1 * a1 * d * m1
+    I = e1 * psi1 * a1 * a1 * d
+    
+    S = (-(G * f - r * D *E - A * D * f) + sqrt((G * f - r * D * E - A * D * f)^2 - 4 * A * D *E * (r * D * f - a1 * d * f * f + H * f - I * f))) / 2 * A * D * E
+    P1 = (d * (o1 + m1)) / (b1 * h1 * o1 - c1 * b1 * (o1 + m1))
+    H = ((r - A * S) * D - a1 * d * (m1 + o1)) / (psi1 * a1 * b1 * d)
+    P1H = (b1 * H) * P1 / (o1 + m1)
+    
+    return(c(H, P1H, P1, S))
+  })
+
+E1
+
+E2 = 
+  with(parms, {
+    A = r/K
+    D = b2 * h2 * o2 - (c2 * b2 * (o2 + m2))
+    E = e2H * psi2 * a2
+    f = m2 + o2
+    G = e2H * psi2 * a2 * a2 * d
+    H = psi2 * a2 * d * m2
+    I = e2 * psi2 * a2 * a2 * d
+    
+    S = (-(G * f - r * D * E - A * D * f) + sqrt((G * f - r * D * E - A * D * f)^2 - 4 * A * D *E * (r * D * f - a2 * d * f * f + H * f - I * f))) / (2 * A * D * E)
+    P2 = (d * (o2 + m2)) / (b2 * h2 * o2 - c2 * b2 * (o2 + m2))
+    H = ((r - A * S) * D - a2 * d * (m2 + o2)) / (psi2 * a2 * b2 * d)
+    P2H = ((b2 * H) * P2) / (o2 + m2)
+    
+    return(c(H, P2H, P2, S))
+  })
+E2
+
+####Coexist equilibrium (need H to solve)----
 
 Equilibrium =
   with(parms, {
@@ -140,3 +182,6 @@ with(parms, {
 })
 
 Equilibrium["P1"]
+
+
+

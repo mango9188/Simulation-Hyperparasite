@@ -2,9 +2,11 @@
 
 parms = list(
   r = 1, K = 10,
-  a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
+  a1 = 0.4, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
   b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.055, e1H = 0.5, e2H = 0.5,
   o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
+
+#parms = list(r = 1, K = 10, a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5, b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.055, e1H = 0.5, e2H = 0.5, o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
 
 library(rootSolve)
 
@@ -23,7 +25,7 @@ CP =
 #curve(CP(x), from = 0, to = 10)
 #abline(h = 0, lty = 2)
 
-comp_out = expand.grid(a1 = seq(0.05, 1, by = 0.01), b1 = seq(0.05, 1, by = 0.01))
+comp_out = expand.grid(a1 = seq(0.05, 1, by = 0.05), b1 = seq(0.05, 1, by = 0.05))
 
 ####Input each parameter sets----
 comp_out = as.data.frame(cbind(comp_out, 
@@ -152,3 +154,79 @@ comp_out$Outcome.ZeroH =
          ifelse(comp_out[, 3] > comp_out[, 4], "P2(+H)", "Coexist"))
 View(comp_out)
 
+
+#Find the corresponding S under different parameter sets----
+
+
+parms = list(
+  r = 1, K = 10,
+  a1 = 0.4, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
+  b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.055, e1H = 0.5, e2H = 0.5,
+  o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
+
+#parms = list(r = 1, K = 10, a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5, b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.055, e1H = 0.5, e2H = 0.5, o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
+
+library(rootSolve)
+
+##Get the cross point
+CP =
+  function(S){
+    with(parms, {
+      H1 = (m1 - e1 * a1 * S)/((e1H * psi1 * a1 * b1 * S)/ (m1 + o1) - b1)
+      H2 = (m2 - e2 * a2 * S)/((e2H * psi2 * a2 * b2 * S)/ (m2 + o2) - b2)
+      H1-H2
+    })
+  }
+
+#Min.H = uniroot(CP, lower = 0, upper = 5)
+#Min.H$root
+#curve(CP(x), from = 0, to = 10)
+#abline(h = 0, lty = 2)
+
+comp_outS = expand.grid(a1 = seq(0.05, 1, by = 0.05), b1 = seq(0.05, 1, by = 0.05))
+
+####Input each parameter sets----
+comp_outS = as.data.frame(cbind(comp_outS, 
+                               matrix(0, 
+                                      nrow = dim(comp_outS)[1],
+                                      ###dim(data)[1] is the number of row of data; [2] is col
+                                      ncol = 3)))
+names(comp_outS) = c("a1", "b1", "H1", "H2", "S")
+
+###Create a parameter space with analytic way----
+for(i in 1:dim(comp_outS)[1]){
+  temp_parms = parms
+  temp_parms["a1"] = comp_outS[i, "a1"]
+  temp_parms["b1"] = comp_outS[i, "b1"]
+  
+  CP =
+    function(S){
+      with(temp_parms, {
+        H1 = (m1 - e1 * a1 * S)/((e1H * psi1 * a1 * b1 * S)/ (m1 + o1) - b1)
+        H2 = (m2 - e2 * a2 * S)/((e2H * psi2 * a2 * b2 * S)/ (m2 + o2) - b2)
+        H1-H2
+      })
+    }
+  
+  comp_outS[i, "S"] = 
+    tryCatch(
+      {
+        uniroot(CP, lower = 0, upper = 1, tol = 1e-16)$root
+      }, error = function(e){
+        NA #S1 and S2 do not cross over, system will predictably follow exploitative competition that only consist S, P1 and P2 no matter how large the H is.
+      })
+  if (is.na(comp_outS[i, "S"]) == FALSE){
+    temp_parms$S = comp_outS[i, "S"]
+    comp_outS[i, c("H1", "H2")] =
+      with(temp_parms, {
+        H1 = (m1 - e1 * a1 * S)/((e1H * psi1 * a1 * b1 * S)/ (m1 + o1) - b1)
+        H2 = (m2 - e2 * a2 * S)/((e2H * psi2 * a2 * b2 * S)/ (m2 + o2) - b2)
+      })
+  }else{
+    next
+  }
+  
+}
+
+View(comp_outS)
+ 
