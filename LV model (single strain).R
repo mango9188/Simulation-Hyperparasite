@@ -15,12 +15,12 @@ M2_S <- function(times, state, parms) {
 ### Model parameters ----
 
 times <- seq(0, 10000, by = 1)
-#state <- c(H = 1, P1H = 0, P2H = 0, P1 = 2, P2 = 2, S = 5)
+#state <- c(H = 1, P1H = 0, P1 = 2, S = 5)
 state <- c(H = 0.01, P1H = 0, P1 = 0.01, S = 0.2)
 #Change alpha and beta--
 parms <- c(r = 1, K = 10,
-           a1 = 0.35, psi1 = 1, e1 = 0.5,
-           b1 = 0.3, m1 = 0.06, e1H = 0.5,
+           a1 = 0.5, psi1 = 1, e1 = 0.5,
+           b1 = 0.45, m1 = 0.05, e1H = 0.5,
            o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.03, DL = 0)
 
 

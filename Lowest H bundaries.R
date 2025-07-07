@@ -2,8 +2,8 @@
 
 parms = list(
   r = 1, K = 10,
-  a1 = 0.4, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
-  b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.055, e1H = 0.5, e2H = 0.5,
+  a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
+  b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.05, e1H = 0.5, e2H = 0.5,
   o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
 
 #parms = list(r = 1, K = 10, a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5, b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.055, e1H = 0.5, e2H = 0.5, o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
@@ -25,8 +25,8 @@ CP =
 #curve(CP(x), from = 0, to = 10)
 #abline(h = 0, lty = 2)
 
-comp_out = expand.grid(a1 = seq(0.05, 1, by = 0.05), b1 = seq(0.05, 1, by = 0.05))
-
+comp_out = expand.grid(a1 = seq(0.05, 0.5, by = 0.05), b1 = seq(0.05, 0.5, by = 0.05))
+comp_out = expand.grid(a1 = seq(0.35, 0.35), b1 = seq(0.2, 0.2))
 ####Input each parameter sets----
 comp_out = as.data.frame(cbind(comp_out, 
                                 matrix(0, 

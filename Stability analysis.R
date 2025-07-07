@@ -2,6 +2,7 @@
 
 ####Monoculture equilibrium----
 parms[c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')] = pop_size[length(times), -1]
+parms[c('H', 'P1H', 'P1', 'S')] = pop_size[length(times), -1]
 parms = as.list(parms)
 
 ##for single strain (P1+P1H)
@@ -12,7 +13,7 @@ with(parms, {
   J14 = 0
   J21 = b1*P1
   J22 = -(m1+o1)
-  J23 = b1*P1
+  J23 = b1*H
   J24 = 0
   J31 = -b1*P1 
   J32 = e1H*psi1*a1*S
@@ -40,7 +41,7 @@ with(parms, {
   J14 = 0
   J21 = b2*P2
   J22 = -(m2+o2)
-  J23 = b2*P2
+  J23 = b2*H
   J24 = 0
   J31 = -b2*P2
   J32 = e2H*psi2*a2*S

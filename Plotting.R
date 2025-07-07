@@ -2,8 +2,13 @@ library(tidyverse)
 library(paletteer)
 library(patchwork)
 ##Read the simulation result
-comp_out = readRDS("Pre6Sim1 S slow")
-comp_out = readRDS("Pre1Sim3NC3")
+
+comp_out = readRDS("Pre4Sim6 psi 02")
+comp_out_02 = 
+  comp_out %>%
+    mutate(psi = 0.2, .before = 1)
+
+comp_out = rbind(comp_out_02, comp_out_04, comp_out_06, comp_out_08, comp_out_1)
 #comp_out = mutate(comp_out, total = P1+P2+P1H+P2H)
 
 #comp_out = filter(comp_out, r<5)
@@ -23,9 +28,6 @@ theme_bw()+
     legend.text.align = 0)
 theme_set(A)
 
-
-####Plot the result----
-#filter(comp_out, a1 > 0, b1 > 0)
 unique_outcomes = unique(comp_out$Outcome)
 mycolor = c("TTTTT" = "#BA6338FF",#AC
             "TFTTT" = "#F0E685FF",#C/P1H
@@ -50,6 +52,7 @@ outcome_labels <- c(
   "TFTFT" = expression(P[2] + P[2/H] ~ "win"),
   "FFFFT" = expression(P[2] ~ "wins")
 )
+####Plot the result----
 
 ggplot(filter(comp_out), aes(x = a1, y = b1, z = Outcome, fill = Outcome2)) +
   geom_tile() +
@@ -145,13 +148,13 @@ ggplot(comp_out, aes(x = a1, y = r, z = Outcome, fill = Outcome2)) +
         axis.title.y = element_text(size = 15))
 
 ############Plot the heatmap for m------------
-ggplot(comp_out, aes(x = m1, y = m2, z = Outcome, fill = Outcome2)) +
+ggplot(filter(comp_out, psi == 1), aes(x = m1, y = m2, z = Outcome, fill = Outcome2)) +
   geom_tile() +
-  #geom_point(filter(comp_out, Cycle == "T"), mapping = aes(x = m1, y = m2, shape = Cycle), color = "black", alpha = 0.2)+
+  geom_point(filter(comp_out, Cycle == "T"), mapping = aes(x = m1, y = m2, shape = Cycle), color = "black", alpha = 0.2)+
   #geom_point(mapping = aes(x = m1, y = m2), color = "black", alpha = 0.1)+
-  labs(title = expression(), x = expression(m[1]), y = expression(m[2]))+
-  scale_x_continuous(expand = c(0, 0), breaks = seq(0.01, 0.1, by = 0.01)) +
-  scale_y_continuous(expand = c(0, 0), breaks = seq(0.01, 0.1, by = 0.01)) +
+  labs(title = expression(psi == 1), x = expression(m[1]), y = expression(m[2]))+
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 0.2, by = 0.02)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0, 0.2, by = 0.02)) +
   scale_fill_manual(values = final_colors, labels = outcome_labels) +
   #scale_fill_manual(values = as.character(paletteer_d("ggsci::default_igv")))+#automatically choose color
   #scale_fill_manual(values = setNames(paletteer_d("ggsci::default_igv")[1:length(all_comb)], all_comb))+
@@ -291,18 +294,18 @@ comp_out %>%
 #############Bifurcation for m-------------
 D = 
     comp_out %>%
-    select(c(m1, m2, P1, P2, P1H, P2H, H, S, total)) %>% #P1, P2, P1H, P2H, H, S
-    filter(m1 == 0.05, m2 > 0.0568 , m2 < 0.0771) %>%
-    pivot_longer(names_to = "Species", values_to = "Abundance", -c(m1, m2))
+    select(c(m1, m2, psi, P1, P2, P1H, P2H, H, S)) %>% #P1, P2, P1H, P2H, H, S
+    filter(m2 == 0.05, round(m1, 3) == 0.05) %>%
+    pivot_longer(names_to = "Species", values_to = "Abundance", -c(m1, m2, psi))
     #gather(key = Species, value = Abundance, -c(a1, r)) %>% #using gather()
 
-ggplot(D, aes(x = m2, y = Abundance, color = Species)) +
-  geom_line(filter(D, Species != "total"), mapping = aes(x = m2, y = Abundance, color = Species), lwd = 1) +
-  geom_line(filter(D, Species == "total"), mapping = aes(x = m2, y = Abundance, color = Species), lwd = 0.8, linetype = 2) +
+ggplot(D, aes(x = psi, y = Abundance, color = Species)) +
+  geom_line(filter(D, Species != "total"), mapping = aes(x = psi, y = Abundance, color = Species), lwd = 1) +
+  #geom_line(filter(D, Species == "total"), mapping = aes(x = m1, y = Abundance, color = Species), lwd = 0.8, linetype = 2) +
     #scale_linetype_manual(values = c("Stable" = "solid", "Unstable" = "dashed")) +
-  labs(title = expression(m[1] == 0.05), x = expression(m[2]), y = "Abundance", color = "Species")+
+  labs(title = expression(m[2] == 0.05 ~","~ m[1] == 0.05), x = expression(psi), y = "Abundance", color = "Species")+
   scale_y_continuous() +
-  scale_x_continuous(breaks = c(seq(0.057, 0.077, by = 0.004))) +
+  scale_x_continuous() + #breaks = c(seq(0.2, 1, by = 0.2))
   scale_colour_manual(labels = 
                         c("P1" = expression(P[1]), "P1H" = expression(P[1/H]),
                           "P2" = expression(P[2]), "P2H" = expression(P[2/H]),

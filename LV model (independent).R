@@ -9,21 +9,21 @@ M2 <- function(times, state, parms) {
     dP2H_dt = (b2 * P2 * H) + DL * (e2H * psi2 * a2 * P2H * S) - (o2 + m2) * P2H
     dP1_dt = (e1 * a1 * P1) * S - (b1 * P1) * H + (1 - DL) * (e1H * psi1 * a1 * P1H * S) - m1 * P1
     dP2_dt = (e2 * a2 * P2) * S - (b2 * P2) * H + (1 - DL) * (e2H * psi2 * a2 * P2H * S) - m2 * P2
-    dS_dt = r * S * (1-S/K) - (a1 * P1 + a2 * P2 + psi1 * a1 * P1H + psi2 * a2 * P2H) * S
+    dS_dt = (r * S * (1-S/K) - (a1 * P1 + a2 * P2 + psi1 * a1 * P1H + psi2 * a2 * P2H) * S)# * epsilon
     return(list(c(dH_dt, dP1H_dt, dP2H_dt, dP1_dt, dP2_dt, dS_dt)))
   })
 }
 
 ### Model parameters ----
-
-times <- seq(0, 100000, by = 0.01)
+times <- seq(0, 40000, by = 0.1)
 #state <- c(H = 1, P1H = 0, P2H = 0, P1 = 2, P2 = 2, S = 5)
-state <- c(H = 0.1, P1H = 0, P2H = 0, P1 = 0.01, P2 = 0.01, S = 0.2)
+state <- c(H = 0.1, P1H = 0, P2H = 0, P1 = 0.01, P2 = 0.01, S = 2)
+#state <- c(H = 0.1638255, P1H = 0.02361139, P2H =  0.1168105, P1 =  0.6125324, P2 = 1.346811, S = 0.4553895)
 #Change alpha and beta--
-parms <- c(
+parms <- c(epsilon = 1,
            r = 1, K = 10,
-           a1 = 0.45, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
-           b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.055, e1H = 0.5, e2H = 0.5,
+           a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
+           b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.05, e1H = 0.5, e2H = 0.5,
            o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
 
 #parms <- c(r = 1, K = 10,a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.0536, e1H = 0.5, e2H = 0.5,o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
@@ -44,9 +44,9 @@ pop_size %>%
              names_to = "species", values_to = "biomass") %>%
   #filter(species == c("H","S")) %>%
   ggplot(mapping = aes(x = time, y = biomass, color = species)) +
-  labs(x = "Time", y = "Biomass", title = expression(α[1] == 0.45 ~","~ β[1] == 0.2 )) +  #, title = expression(P[1]~"win") paste0("r =", parms["r"])) expression(α[1] == 0.35)
+  labs(x = "Time", y = "Biomass") +  #title = expression(P[1]~"win") paste0("r =", parms["r"])) expression(α[1] == 0.35)+ #title = expression(α[1] == 0.35 ~","~ β[1] == 0.2 )
   geom_line(lwd = 1) +
-  geom_hline(yintercept = 0.28905636, color = "black", linetype = "dashed", size = 1) +
+  #geom_hline(yintercept = 0.28905636, color = "black", linetype = "dashed", size = 1) +
   scale_colour_manual(labels = c("H" = "Hyper", "P1" = expression(P[1]), "P1H" = expression(P[1/H]), "P2" = expression(P[2]), "P2H" = expression(P[2/H]), "S" = "Host"),
                       values = c("H" = "#C03728", "P1" = "#BCAAA4", "P1H" = "#82491E",
                                  "P2" = "#B0BEC5", "P2H" = "#546E7A", "S" = "#00AF66"))
