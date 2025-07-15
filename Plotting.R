@@ -3,17 +3,14 @@ library(paletteer)
 library(patchwork)
 ##Read the simulation result
 
-comp_out = readRDS("Pre4Sim6 psi 02")
-comp_out_02 = 
-  comp_out %>%
-    mutate(psi = 0.2, .before = 1)
+comp_out = readRDS("Pre4A1")
 
-comp_out = rbind(comp_out_02, comp_out_04, comp_out_06, comp_out_08, comp_out_1)
+comp_out = 
+  readRDS("Pre4A1") %>%
+  filter(psi1 == 1, psi2 == 1)
+
 #comp_out = mutate(comp_out, total = P1+P2+P1H+P2H)
-
 #comp_out = filter(comp_out, r<5)
-#comp_out = comp_out[,-c(11:17)]
-#saveRDS(comp_out, "Pre1Sim3NC3")
 ####Theme setting----
 A = 
 theme_bw()+
@@ -36,7 +33,8 @@ mycolor = c("TTTTT" = "#BA6338FF",#AC
             "TTFTF" = "#466983FF",#P1+H
             "FFFTF" = "#0A47FFFF",#P1
             "TFTFT" = "#749B58FF",#P2+H
-            "FFFFT" = "#64DD17"#P2
+            "FFFFT" = "#64DD17",#P2
+            "FFFFF" = "#5e0084"#Unstable
 )
 unspecified_outcomes <- setdiff(unique_outcomes, names(mycolor))
 extra_colors <- paletteer_d("ggsci::default_igv")[1:length(unspecified_outcomes)]
@@ -50,14 +48,15 @@ outcome_labels <- c(
   "TTFTF" = expression(P[1] + P[1/H] ~ "win"),
   "FFFTF" = expression(P[1] ~ "wins"),
   "TFTFT" = expression(P[2] + P[2/H] ~ "win"),
-  "FFFFT" = expression(P[2] ~ "wins")
+  "FFFFT" = expression(P[2] ~ "wins"),
+  "FFFFF" = "Unstable"
 )
 ####Plot the result----
 
-ggplot(filter(comp_out), aes(x = a1, y = b1, z = Outcome, fill = Outcome2)) +
+ggplot(filter(comp_out, round(m2, 5) == 0.1), aes(x = a1, y = b1, z = Outcome2, fill = Outcome2)) +
   geom_tile() +
-  geom_point(filter(comp_out), mapping = aes(x = a1, y = b1, shape = Stability), color = "black", alpha = 0.2)+
-  labs(title = expression(m[1] < m[2]), x = expression(α[1]), y = expression(β[1]))+ #title = "δ = 0 (No vertical transmission)",  ~","~ r == 1.5
+  #geom_point(filter(comp_out), mapping = aes(x = a1, y = b1, shape = Stability), color = "black", alpha = 0.2)+
+  labs(title = expression(m[2] == 0.1), x = expression(α[1]), y = expression(β[1]))+ #title = "δ = 0 (No vertical transmission)",  ~","~ r == 1.5
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
   scale_fill_manual(values = final_colors, labels = outcome_labels) +
@@ -148,13 +147,13 @@ ggplot(comp_out, aes(x = a1, y = r, z = Outcome, fill = Outcome2)) +
         axis.title.y = element_text(size = 15))
 
 ############Plot the heatmap for m------------
-ggplot(filter(comp_out, psi == 1), aes(x = m1, y = m2, z = Outcome, fill = Outcome2)) +
+ggplot(filter(comp_out), aes(x = m1, y = m2, z = Outcome2, fill = Outcome2)) +
   geom_tile() +
-  geom_point(filter(comp_out, Cycle == "T"), mapping = aes(x = m1, y = m2, shape = Cycle), color = "black", alpha = 0.2)+
+  #geom_point(filter(comp_out, Cycle == "T"), mapping = aes(x = m1, y = m2, shape = Cycle), color = "black", alpha = 0.2)+
   #geom_point(mapping = aes(x = m1, y = m2), color = "black", alpha = 0.1)+
-  labs(title = expression(psi == 1), x = expression(m[1]), y = expression(m[2]))+
-  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 0.2, by = 0.02)) +
-  scale_y_continuous(expand = c(0, 0), breaks = seq(0, 0.2, by = 0.02)) +
+  labs(title = expression(psi[1] == 1 ~","~ psi[2] == 1), x = expression(m[1]), y = expression(m[2]))+
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.01)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.01)) +
   scale_fill_manual(values = final_colors, labels = outcome_labels) +
   #scale_fill_manual(values = as.character(paletteer_d("ggsci::default_igv")))+#automatically choose color
   #scale_fill_manual(values = setNames(paletteer_d("ggsci::default_igv")[1:length(all_comb)], all_comb))+
@@ -294,16 +293,16 @@ comp_out %>%
 #############Bifurcation for m-------------
 D = 
     comp_out %>%
-    select(c(m1, m2, psi, P1, P2, P1H, P2H, H, S)) %>% #P1, P2, P1H, P2H, H, S
-    filter(m2 == 0.05, round(m1, 3) == 0.05) %>%
-    pivot_longer(names_to = "Species", values_to = "Abundance", -c(m1, m2, psi))
+    select(c(m1, m2, P1, P2, P1H, P2H, H, S)) %>% #P1, P2, P1H, P2H, H, S
+    filter(round(m1, 5) == 0.05) %>%
+    pivot_longer(names_to = "Species", values_to = "Abundance", -c(m1, m2))
     #gather(key = Species, value = Abundance, -c(a1, r)) %>% #using gather()
 
-ggplot(D, aes(x = psi, y = Abundance, color = Species)) +
-  geom_line(filter(D, Species != "total"), mapping = aes(x = psi, y = Abundance, color = Species), lwd = 1) +
+ggplot(D, aes(x = m2, y = Abundance, color = Species)) +
+#  geom_line(filter(D, Species != "total"), mapping = aes(x = m2, y = Abundance, color = Species), lwd = 1) +
   #geom_line(filter(D, Species == "total"), mapping = aes(x = m1, y = Abundance, color = Species), lwd = 0.8, linetype = 2) +
     #scale_linetype_manual(values = c("Stable" = "solid", "Unstable" = "dashed")) +
-  labs(title = expression(m[2] == 0.05 ~","~ m[1] == 0.05), x = expression(psi), y = "Abundance", color = "Species")+
+  labs(title = expression(m[1] == 0.05), x = expression(m[2]), y = "Abundance", color = "Species")+
   scale_y_continuous() +
   scale_x_continuous() + #breaks = c(seq(0.2, 1, by = 0.2))
   scale_colour_manual(labels = 
