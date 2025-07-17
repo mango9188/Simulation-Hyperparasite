@@ -149,9 +149,9 @@ ggplot(comp_out, aes(x = a1, y = r, z = Outcome, fill = Outcome2)) +
 ############Plot the heatmap for m------------
 ggplot(filter(comp_out), aes(x = m1, y = m2, z = Outcome2, fill = Outcome2)) +
   geom_tile() +
-  #geom_point(filter(comp_out, Cycle == "T"), mapping = aes(x = m1, y = m2, shape = Cycle), color = "black", alpha = 0.2)+
+  geom_point(filter(comp_out, Stability == "ASS"), mapping = aes(x = m1, y = m2, shape = Stability), color = "black", alpha = 0.2)+
   #geom_point(mapping = aes(x = m1, y = m2), color = "black", alpha = 0.1)+
-  labs(title = expression(psi[1] == 1 ~","~ psi[2] == 1), x = expression(m[1]), y = expression(m[2]))+
+  labs(title = expression(psi[1] == 0.8 ~","~ psi[2] == 0.8), x = expression(m[1]), y = expression(m[2]))+
   scale_x_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.01)) +
   scale_y_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.01)) +
   scale_fill_manual(values = final_colors, labels = outcome_labels) +
@@ -165,7 +165,7 @@ ggplot(filter(comp_out), aes(x = m1, y = m2, z = Outcome2, fill = Outcome2)) +
         axis.title.y = element_text(size = 15))+
   coord_fixed(ratio = 1)
 
-ggsave("Heatmap of m1 and m2.png", width = 15, height = 15, units = "cm", dpi = 800)
+#ggsave("Heatmap of m1 and m2.png", width = 15, height = 15, units = "cm", dpi = 800)
 
 ggplot(comp_out, aes(x = factor(m1), y = m2, z = Outcome, fill = Outcome2)) +
   geom_tile() +
@@ -294,15 +294,15 @@ comp_out %>%
 D = 
     comp_out %>%
     select(c(m1, m2, P1, P2, P1H, P2H, H, S)) %>% #P1, P2, P1H, P2H, H, S
-    filter(round(m1, 5) == 0.05) %>%
+    filter(round(m2, 5) == 0.05) %>%
     pivot_longer(names_to = "Species", values_to = "Abundance", -c(m1, m2))
     #gather(key = Species, value = Abundance, -c(a1, r)) %>% #using gather()
 
-ggplot(D, aes(x = m2, y = Abundance, color = Species)) +
-#  geom_line(filter(D, Species != "total"), mapping = aes(x = m2, y = Abundance, color = Species), lwd = 1) +
+ggplot(D, aes(x = m1, y = Abundance, color = Species)) +
+  geom_line(filter(D, Species != "total"), mapping = aes(x = m1, y = Abundance, color = Species), lwd = 1) +
   #geom_line(filter(D, Species == "total"), mapping = aes(x = m1, y = Abundance, color = Species), lwd = 0.8, linetype = 2) +
     #scale_linetype_manual(values = c("Stable" = "solid", "Unstable" = "dashed")) +
-  labs(title = expression(m[1] == 0.05), x = expression(m[2]), y = "Abundance", color = "Species")+
+  labs(title = expression(m[2] == 0.05), x = expression(m[1]), y = "Abundance", color = "Species")+
   scale_y_continuous() +
   scale_x_continuous() + #breaks = c(seq(0.2, 1, by = 0.2))
   scale_colour_manual(labels = 
