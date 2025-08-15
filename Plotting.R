@@ -7,7 +7,10 @@ comp_out = readRDS("Pre4A1")
 
 comp_out = 
   readRDS("Pre4A1") %>%
-  filter(psi1 == 1, psi2 == 1)
+  filter(round(psi1, 5) == 1, round(psi2, 5) == 1) #%>%
+  #filter(round(m2, 5) == 2*m1)
+comp_out[comp_out[,"Stable_E"] == "",]$Stable_E = "U"
+#comp_out[which(comp_out$Stable_E == ""), "Stable_E"] = "U"
 
 #comp_out = mutate(comp_out, total = P1+P2+P1H+P2H)
 #comp_out = filter(comp_out, r<5)
@@ -51,6 +54,39 @@ outcome_labels <- c(
   "FFFFT" = expression(P[2] ~ "wins"),
   "FFFFF" = "Unstable"
 )
+
+#for ASS
+unique_outcomes = unique(comp_out$Stable_E)
+mycolor = c("C" = "#BA6338FF",
+            "C,P1H" = "#80665DFF",
+            "C,P2H" = "#977F48FF",
+            "P1H,P2H" = "#5D826D",
+            "P1,P2" = "#37928B",
+            "P1H" = "#466983FF",
+            "P1" = "#0A47FFFF",
+            "P2H" = "#749B58FF",
+            "P2" = "#64DD17",
+            "S" = "#E5E5E5",
+            "U" = "#5e0084"#Unstable
+)
+unspecified_outcomes <- setdiff(unique_outcomes, names(mycolor))
+extra_colors <- paletteer_d("ggsci::default_igv")[1:length(unspecified_outcomes)]
+final_colors <- c(mycolor, setNames(extra_colors, unspecified_outcomes))
+
+outcome_labels <- c(
+  "C" = "Coexistence",
+  "C,P1H" = expression(C ~"or"~ P[1] + P[1/H]),
+  "C,P2H" = expression(C ~"or"~ P[2] + P[2/H]),
+  "P1H,P2H" = expression(P[1] + P[1/H] ~"or"~ P[2] + P[2/H]),
+  "P1,P2" = expression(P[1] ~"or"~P[2]),
+  "P1H" = expression(P[1] + P[1/H]),
+  "P1" = expression(P[1]),
+  "P2H" = expression(P[2] + P[2/H]),
+  "P2" = expression(P[2]),
+  "S" = "S",
+  "U" = "Unstable"
+)
+
 ####Plot the result----
 
 ggplot(filter(comp_out, round(m2, 5) == 0.1), aes(x = a1, y = b1, z = Outcome2, fill = Outcome2)) +
@@ -147,11 +183,11 @@ ggplot(comp_out, aes(x = a1, y = r, z = Outcome, fill = Outcome2)) +
         axis.title.y = element_text(size = 15))
 
 ############Plot the heatmap for m------------
-ggplot(filter(comp_out), aes(x = m1, y = m2, z = Outcome2, fill = Outcome2)) +
-  geom_tile() +
-  geom_point(filter(comp_out, Stability == "ASS"), mapping = aes(x = m1, y = m2, shape = Stability), color = "black", alpha = 0.2)+
+ggplot(filter(comp_out), aes(x = m1, y = m2, z = Stable_E, fill = Stable_E)) +
+  geom_raster() +
+  #geom_point(filter(comp_out, Stability == "ASS"), mapping = aes(x = m1, y = m2, shape = Stability), color = "black", alpha = 0.2)+
   #geom_point(mapping = aes(x = m1, y = m2), color = "black", alpha = 0.1)+
-  labs(title = expression(psi[1] == 0.8 ~","~ psi[2] == 0.8), x = expression(m[1]), y = expression(m[2]))+
+  labs(title = expression(psi[1] == 1 ~","~ psi[2] == 1), x = expression(m[1]), y = expression(m[2]))+
   scale_x_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.01)) +
   scale_y_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.01)) +
   scale_fill_manual(values = final_colors, labels = outcome_labels) +
@@ -165,7 +201,8 @@ ggplot(filter(comp_out), aes(x = m1, y = m2, z = Outcome2, fill = Outcome2)) +
         axis.title.y = element_text(size = 15))+
   coord_fixed(ratio = 1)
 
-#ggsave("Heatmap of m1 and m2.png", width = 15, height = 15, units = "cm", dpi = 800)
+ggsave("Heatmap of m1 and m2.png", width = 16, height = 11, units = "cm", dpi = 1600)
+
 
 ggplot(comp_out, aes(x = factor(m1), y = m2, z = Outcome, fill = Outcome2)) +
   geom_tile() +
@@ -183,6 +220,51 @@ ggplot(comp_out, aes(x = factor(m1), y = m2, z = Outcome, fill = Outcome2)) +
         axis.text.y = element_text(size = 10),
         axis.title.x = element_text(size = 15),
         axis.title.y = element_text(size = 15))
+
+
+
+############Plot the heatmap for m + IGR------------
+ggplot(filter(comp_out)) +
+  geom_raster(mapping = aes(x = m1, y = m2, fill = Stable_E)) +
+  geom_contour(filter(comp_out, m2 < 0.057), mapping = aes(x = m1, y = m2, z = IGR2), breaks = 0, color = "grey", size = 1.2)+
+  geom_contour(filter(comp_out, m2 < 0.057), mapping = aes(x = m1, y = m2, z = IGR1), breaks = 0, color = "darkred", size = 1.2)+
+  
+  #geom_point(filter(comp_out, IGR2 > 0), mapping = aes(x = m1, y = m2), alpha = 0.8)+
+  labs(title = expression(psi[1] == 1 ~","~ psi[2] == 1), x = expression(m[1]), y = expression(m[2]))+
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.01)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.01)) +
+  scale_fill_manual(values = final_colors, labels = outcome_labels) +
+  #scale_fill_manual(values = as.character(paletteer_d("ggsci::default_igv")))+#automatically choose color
+  #scale_fill_manual(values = setNames(paletteer_d("ggsci::default_igv")[1:length(all_comb)], all_comb))+
+  theme(panel.grid = element_blank(),
+        plot.title = element_text(hjust = 0.5, size = 20),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15))+
+  coord_fixed(ratio = 1)
+
+#ggsave("Heatmap of m1 and m2.png", width = 16, height = 11, units = "cm", dpi = 1600)
+
+
+ggplot(comp_out, aes(x = factor(m1), y = m2, z = Outcome, fill = Outcome2)) +
+  geom_tile() +
+  #geom_point(filter(comp_out, Cycle == "T"), mapping = aes(x = m1, y = m2, shape = Cycle), color = "black", alpha = 0.2)+
+  labs(title = expression(), x = expression(m[1]), y = expression(m[2]))+
+  #scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0.01, 0.1, by = 0.01)) +
+  scale_fill_manual(values = final_colors, labels = outcome_labels) +
+  #scale_fill_manual(values = as.character(paletteer_d("ggsci::default_igv")))+#automatically choose color
+  #scale_fill_manual(values = setNames(paletteer_d("ggsci::default_igv")[1:length(all_comb)], all_comb))+
+  #theme_minimal()+
+  theme(panel.grid = element_blank(),
+        plot.title = element_text(hjust = 0.5, size = 20),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15))
+
+
 
 #############Bifurcation diagram--------------
 comp_out %>%
@@ -294,15 +376,15 @@ comp_out %>%
 D = 
     comp_out %>%
     select(c(m1, m2, P1, P2, P1H, P2H, H, S)) %>% #P1, P2, P1H, P2H, H, S
-    filter(round(m2, 5) == 0.05) %>%
+    #filter(round(m2, 5) == 0.05) %>%
     pivot_longer(names_to = "Species", values_to = "Abundance", -c(m1, m2))
     #gather(key = Species, value = Abundance, -c(a1, r)) %>% #using gather()
 
-ggplot(D, aes(x = m1, y = Abundance, color = Species)) +
-  geom_line(filter(D, Species != "total"), mapping = aes(x = m1, y = Abundance, color = Species), lwd = 1) +
+ggplot(D, aes(x = m2, y = Abundance, color = Species)) +
+  geom_line(filter(D, Species != "total"), mapping = aes(x = m2, y = Abundance, color = Species), lwd = 1) +
   #geom_line(filter(D, Species == "total"), mapping = aes(x = m1, y = Abundance, color = Species), lwd = 0.8, linetype = 2) +
     #scale_linetype_manual(values = c("Stable" = "solid", "Unstable" = "dashed")) +
-  labs(title = expression(m[2] == 0.05), x = expression(m[1]), y = "Abundance", color = "Species")+
+  labs(title = expression(m[2] == 2*m[1]), x = expression(m[2]), y = "Abundance", color = "Species")+
   scale_y_continuous() +
   scale_x_continuous() + #breaks = c(seq(0.2, 1, by = 0.2))
   scale_colour_manual(labels = 
@@ -316,5 +398,30 @@ ggplot(D, aes(x = m1, y = Abundance, color = Species)) +
     #scale_shape_manual(values = c("Stable" = 16, "Unstable" = 3)) + 
   theme(axis.title.y.right = element_text(angle = 90))
   
-ggsave("All+total in m2 0057 to 76.png", width = 15, height = 11, units = "cm", dpi = 800)
+D = 
+  comp_out %>%
+  select(c(m1, m2, P1, P2, P1H, P2H, H, S)) %>% #P1, P2, P1H, P2H, H, S
+  filter(round(m1, 5) == 0.05, round(m2, 5) > 0.05, round(m2, 5) < 0.08) %>%
+  pivot_longer(names_to = "Species", values_to = "Abundance", -c(m1, m2))
+#gather(key = Species, value = Abundance, -c(a1, r)) %>% #using gather()
+
+ggplot(D, aes(x = m2, y = Abundance, color = Species)) +
+  geom_line(filter(D, Species != "total"), mapping = aes(x = m2, y = Abundance, color = Species), lwd = 1) +
+  #geom_line(filter(D, Species == "total"), mapping = aes(x = m1, y = Abundance, color = Species), lwd = 0.8, linetype = 2) +
+  #scale_linetype_manual(values = c("Stable" = "solid", "Unstable" = "dashed")) +
+  labs(title = expression(m[1] == 0.05), x = expression(m[2]), y = "Abundance", color = "Species")+
+  scale_y_continuous() +
+  scale_x_continuous() + #breaks = c(seq(0.2, 1, by = 0.2))
+  scale_colour_manual(labels = 
+                        c("P1" = expression(P[1]), "P1H" = expression(P[1/H]),
+                          "P2" = expression(P[2]), "P2H" = expression(P[2/H]),
+                          "S" = "Host", "H" = "Hyper"),
+                      values = c("P1" = "#BCAAA4", "P1H" = "#82491E",
+                                 "P2" = "#B0BEC5", "P2H" = "#546E7A", 
+                                 "S" = "#00AF66", "H" = "#C03728",
+                                 "total" = "black")) +
+  #scale_shape_manual(values = c("Stable" = 16, "Unstable" = 3)) + 
+  theme(axis.title.y.right = element_text(angle = 90))
+
+#ggsave("All+total in m2 0057 to 76.png", width = 15, height = 11, units = "cm", dpi = 800)
   

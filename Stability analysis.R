@@ -143,26 +143,6 @@ with(parms, {
   return(max(Re(eigen(Jacobian)$value)))
 })
 
-##for P1+P2
-with(parms, {
-  J11 = e1*a1*S-m1
-  J12 = 0
-  J13 = e1*a1*P1
-  J21 = 0
-  J22 = e2*a2*S-m2
-  J23 = e2*a2*P2
-  J31 = -a1*S
-  J32 = -a2*S
-  J33 = r*(1-S/K) - a1*P1 - a2*P2 - S*r/K
-  
-  Jacobian = matrix(data = 
-                      c(J11, J12, J13,
-                        J21, J22, J23,
-                        J31, J32, J33
-                      ), 
-                    byrow = T, nrow = 3, ncol = 3)
-  return(max(Re(eigen(Jacobian)$value)))
-})
 
 
 ####Stability analysis for for-loop-----

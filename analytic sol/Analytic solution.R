@@ -12,7 +12,7 @@ mutate(comp_out,
 parms <- list(#H = 0.133791930, #0.133791930
            r = 1, K = 10,
            a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
-           b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.055, e1H = 0.5, e2H = 0.5,
+           b1 = 0.2, b2 = 0.45, m1 = 0.04, m2 = 0.08, e1H = 0.5, e2H = 0.5,
            o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
 
 parms = parms %>% as.list()
@@ -67,14 +67,20 @@ E1 =
     A = -( (e1H*psi1^2*a1^2*b1^2*P1*K) / (r*(o1+m1)^2) )
     B = ( (e1H*psi1*a1*b1 - e1H*psi1*a1^2*b1*P1) / (o1+m1) - (e1*psi1*a1^2*b1*P1) / (r*(o1+m1)) )*K - b1
     C = (e1*a1 - (e1*a1^2*P1)/r)*K - m1
-    H1 = (-B-sqrt(B^2 - 4*A*C)) / (2*A)
-    H2 = (-B+sqrt(B^2 - 4*A*C)) / (2*A)
-    H = ifelse(H1 > 0, H1, H2)
-    
+    #H1 = (-B-sqrt(B^2 - 4*A*C)) / (2*A)
+    #H2 = (-B+sqrt(B^2 - 4*A*C)) / (2*A)
+    #H = ifelse(H1 > 0, H1, H2)
+    H = 0
     S = ((b1 * H + m1) * (m1 + o1))/ (e1 * a1 * (m1 + o1) + e1H * psi1 * a1 * b1 * H)
     P1a = r * (1 - (S/K)) * (m1 + o1) / (a1 * (m1 + o1 + psi1 * b1 * H))
     P1H = P1 * (b1 * H) / (m1 + o1)
-    return(c(H1, H2, P1H, P1, P1a, S))
+    return(setNames(
+      #c(H1, H2, P1H, P1, P1a, S),
+      #c("H1", "H2", "P1H", "P1", "P1a", "S")
+      c(H, P1H, P1, S),
+      c("H", "P1H", "P1", "S")
+    )
+      )
   })
 
 E1
@@ -92,7 +98,9 @@ E2 =
     P2a = r * (1 - (S/K)) * (m2 + o2) / (a2 * (m2 + o2 + psi2 * b2 * H))
     P2H = P2 * (b2 * H) / (m2 + o2)
     
-    return(c(H1, H2, P2H, P2, P2a, S))
+    return(setNames(
+      c(H1, H2, P2H, P2, P2a, S),
+      c("H1", "H2", "P2H", "P2", "P2a", "S")))
   })
 E2
 

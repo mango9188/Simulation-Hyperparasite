@@ -9,7 +9,7 @@ parms <- list(#H = 0.133791930, #0.133791930
 parms <- list(#H = 0.133791930, #0.133791930
   r = 1, K = 10,
   a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
-  b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.01, e1H = 0.5, e2H = 0.5,
+  b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.05, e1H = 0.5, e2H = 0.5,
   o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
   #H = 0.0010362406, P1H = 0.001282558, P2H = -0.0009554979, P1 = 5.371629, P2 = -1.838015, S = 0.3896627)
 
@@ -627,6 +627,12 @@ f_E_C = function(parms){
   })
 }
 
+f_E_P1_P2 = function(parms){
+  with(parms){
+    
+  }
+}
+
 f_E_P1 = function(parms){
   with(parms, {
     H = 0
@@ -720,6 +726,21 @@ f_E_P2H = function(parms){
   
 }
 
+f_E_S = function(parms){
+  with(parms){
+    H = 0
+    P1H = 0
+    P2H = 0
+    P1 = 0
+    P2 = 0
+    S = K
+    return(setNames(
+      c(H, P1H, P2H, P1, P2, S),
+      c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')
+    ))
+  }
+}
+
 #### Solve equilibrium across the parameter space ----
 start_time <- Sys.time()
 for(i in 1:dim(comp_out)[1]){
@@ -786,7 +807,8 @@ comp_out$Outcome2 = apply(comp_out[, c("H", "P1H", "P2H", "P1", "P2")], 1, funct
   row = as.numeric(row)
   paste(ifelse(is.na(row), "F", ifelse(row > extinct_thres, "T", "F")), collapse = "")
 })
-comp_out
+comp_out[which(comp_out$Stable_E == ""), "Stable_E"] = "U"
+
 View(comp_out)
 
 
