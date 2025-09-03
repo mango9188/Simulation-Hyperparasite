@@ -9,7 +9,7 @@ parms = c(H = 0,
 
 ###Create a parameter space with analytic way----
 
-comp_out  = expand.grid(H = seq(0, 0.5, by = 0.01))
+comp_out  = expand.grid(H = seq(0, 10, by = 0.01))
 
 
 comp_out <- as.data.frame(cbind(comp_out,
@@ -77,7 +77,8 @@ ggplot(comp_out, mapping = aes(x = H, y = Abundance, color = Si)) +
                           "S1" = "Strain 1", "S2" = "Strain 2", "H" = "Hyper"),
                       values = c("P1" = "#BCAAA4", "P1H" = "#82491E",
                                  "P2" = "#B0BEC5", "P2H" = "#546E7A", 
-                                 "S1" = "darkblue", "S2" = "darkgreen", "H" = "red"))
+                                 "S1" = "darkblue", "S2" = "darkgreen", "H" = "red"))+
+geom_vline(xintercept = 0.05683562, color = "black", linetype = "dashed", size = 1)
   
   #theme(axis.title.y.right = element_text(angle = 90))
 

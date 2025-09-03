@@ -1,3 +1,4 @@
+library(tidyverse)
 
 parms = as.list(parms)
 parms <- list(#H = 0.133791930, #0.133791930
@@ -180,6 +181,42 @@ if(!is.na(Lambda_C) && is.finite(Lambda_C) && Lambda_C < 0 && all(parms_C[c('H',
 
 c(parms_E_PiH[c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')])
 
+
+#Solve for single euilibrium point_NEW----
+#Calculate each equilibrium point
+E_C = f_E_C(parms)
+E_P1 = f_E_P1(parms)
+E_P2 = f_E_P2(parms)
+E_P1H = f_E_P1H(parms)
+E_P2H = f_E_P2H(parms)
+
+Lambda_E_C = Eigen(Jacobian(parms, E_C))
+Lambda_E_P1 = Eigen(Jacobian(parms, E_P1))
+Lambda_E_P2 = Eigen(Jacobian(parms, E_P2))
+Lambda_E_P1H = Eigen(Jacobian(parms, E_P1H))
+Lambda_E_P2H = Eigen(Jacobian(parms, E_P2H))
+
+Stable_E = c()
+if(!is.na(Lambda_E_C) && is.finite(Lambda_E_C) && Lambda_E_C < 0 && all(E_C[c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')] >= 0)){
+  print("Coexitence equilibrium is stable")
+  E_C
+}
+if(!is.na(Lambda_E_P1) && is.finite(Lambda_E_P1) && Lambda_E_P1 < 0 && all(E_P1[c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')] >= 0)){
+  print("E_P1 is stable")
+  E_P1
+}
+if(!is.na(Lambda_E_P2) && is.finite(Lambda_E_P2) && Lambda_E_P2 < 0 && all(E_P2[c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')] >= 0)){
+  print("E_P2 is stable")
+  E_P2
+}
+if(!is.na(Lambda_E_P1H) && is.finite(Lambda_E_P1H) && Lambda_E_P1H < 0 && all(E_P1H[c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')] >= 0)){
+  print("E_P1H is stable")
+  E_P1H
+}
+if(!is.na(Lambda_E_P2H) && is.finite(Lambda_E_P2H) && Lambda_E_P2H < 0 && all(E_P2H[c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')] >= 0)){
+  print("E_P2H is stable")
+  E_P2H
+}
 
 # Expanding parameter space----
 #### Parameter sets----
@@ -627,11 +664,11 @@ f_E_C = function(parms){
   })
 }
 
-f_E_P1_P2 = function(parms){
+#f_E_P1_P2 = function(parms){#
   with(parms){
     
   }
-}
+#}
 
 f_E_P1 = function(parms){
   with(parms, {
@@ -694,6 +731,41 @@ f_E_P1H = function(parms){
   })
 }
 
+f_E_P1HL = function(parms){
+  with(parms,{
+    P1 = (d*(o1+m1))/(b1*h1*o1 - c1*b1*(o1+m1))
+    A = -( (e1H*psi1^2*a1^2*b1^2*P1*K) / (r*(o1+m1)^2) )
+    B = ( (e1H*psi1*a1*b1 - e1H*psi1*a1^2*b1*P1) / (o1+m1) - (e1*psi1*a1^2*b1*P1) / (r*(o1+m1)) )*K - b1
+    C = (e1*a1 - (e1*a1^2*P1)/r)*K - m1
+    E = B^2 - 4*A*C
+    if(E < 0 || is.na(E)){
+      H = NA
+    }else{
+      H1 = (-B + sqrt(B^2-4*A*C)) / (2*A)
+      H2 = (-B - sqrt(B^2-4*A*C)) / (2*A)
+      H_12 = c(H1,H2)
+      H_12 = H_12[H_12 > 0 & !is.na(H_12) & is.finite(H_12)]
+      if(length(H_12) == 0){
+        H = NA
+      }else if(length(H_12) == 2){ #means that there are two positive roots of H
+        H = max(H_12) #Test the stability of the large one.
+        
+        }else{ #There are only one positive root
+          H = min(H_12) #Choose the smallest one which is more biologically meaningful
+          }
+      
+    }
+    S = ((b1 * H + m1) * (m1 + o1))/ (e1 * a1 * (m1 + o1) + e1H * psi1 * a1 * b1 * H)
+    P1H = P1 * (b1 * H) / (m1 + o1)
+    P2H = 0
+    P2 = 0
+    return(setNames(
+      c(H, P1H, P2H, P1, P2, S),
+      c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')
+    )) 
+  })
+}
+
 f_E_P2H = function(parms){
   with(parms, {
     P2 = (d*(o2+m2))/(b2*h2*o2 - c2*b2*(o2+m2))
@@ -725,7 +797,7 @@ f_E_P2H = function(parms){
   })
   
 }
-
+##Try to include max(H_12) to see the stability.
 f_E_S = function(parms){
   with(parms){
     H = 0
@@ -812,6 +884,87 @@ comp_out[which(comp_out$Stable_E == ""), "Stable_E"] = "U"
 View(comp_out)
 
 
+####Data analysis for boundary line ----
+parms = list(
+  r = 1, K = 10,
+  a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
+  b1 = 0.2, b2 = 0.45, e1H = 0.5, e2H = 0.5,
+  o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
+
+#Funciton setting
+Jacobian = function(m1, m2, parms, E) {
+  with(c(parms, E), {
+    matrix(data =
+             c(
+               -c1*b1*P1-c2*b2*P2-d, h1*o1, h2*o2, -c1*b1*H, -c2*b2*H, 0,
+               b1*P1, -(m1+o1), 0, b1*H, 0, 0,
+               b2*P2, 0, -(m2+o2), 0, b2*H, 0,
+               -b1*P1, e1H*psi1*a1*S, 0, e1*a1*S - b1*H - m1, 0, e1*a1*P1 + e1H*psi1*a1*P1H,
+               -b2*P2, 0, e2H*psi2*a2*S, 0, e2*a2*S - b2*H - m2, e2*a2*P2 + e2H*psi2*a2*P2H,
+               0, -psi1*a1*S, -psi2*a2*S, -a1*S, -a2*S, r*(1-S/K) - a1*P1 - psi1*a1*P1H - a2*P2 - psi2*a2*P2H - S*r/K
+             ), nrow = 6, byrow = TRUE)
+  })
+}
+
+Eigen = function(J) {
+  if (any(is.na(J)) || any(is.infinite(J))){
+    return(NA)
+  }else{
+    return(max(Re(eigen(J)$values)))
+  }
+}
+
+f_C_State = function(m1, m2){
+  E_C = with(parms, {
+    D1 = (m1+o1)
+    D2 = (m2+o2)
+    A = D1*b1*e2H*psi2*a2*b2 - D2*b2*e1H*psi1*a1*b1
+    B = D1*b1*e2*a2*D2 + m1*D1*e2H*psi2*a2*b2 - D2*b2*e1*a1*D1 - m2*D2*e1H*psi1*a1*b1
+    C = m1*e2*a2*D1*D2 - m2*e1*a1*D2*D1
+    E = B^2 - 4*A*C
+    if(E < 0 || is.na(E)){
+      H = NA
+    }else{
+      H1 = (-B + sqrt(B^2-4*A*C)) / (2*A)
+      H2 = (-B - sqrt(B^2-4*A*C)) / (2*A)
+      H_12 = c(H1,H2)
+      H_12 = H_12[H_12 > 0 & !is.na(H_12) & is.finite(H_12)]
+      if(length(H_12) == 0){
+        H = NA
+      } else {
+        H = min(H_12) #Choose the smallest one which is more biologically meaningful
+      }
+    }
+    A1 = (b1 * H) / (m1 + o1)
+    A2 = (b2 * H) / (m2 + o2)
+    B1 = h1 * o1 * A1 - c1 * b1 * H
+    B2 = h2 * o2 * A2 - c2 * b2 * H
+    D1 = (1 + psi1 * A1) * a1
+    D2 = (1 + psi2 * A2) * a2
+    S = ((b1 * H + m1) * (m1 + o1))/ (e1 * a1 * (m1 + o1) + e1H * psi1 * a1 * b1 * H)
+    #S2 = ((b2 * H + m2) * (m2 + o2))/ (e2 * a2 * (m2 + o2) + e2H * psi2 * a2 * b2 * H)
+    P1 = (d * H) / B1 - (B2 / B1) * (((B1 * r * (1 - S / K)) - D1 * d * H) / (D2 * B1 - D1 * B2))
+    P2 = (B1 * r * (1 - S / K) - D1 * d * H) / (D2 * B1 - D1 * B2)
+    P1H = A1 * P1
+    P2H = A2 * P2
     
-  
+    return(setNames(
+      c(H, P1H, P2H, P1, P2, S),
+      c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')
+    )) 
+  })
+  if(any(is.na(E_C))){
+    return("Infeasible")
+  }else if(Eigen(Jacobian(m1, m2,parms, E_C)) > 0){
+    return("Unstable")
+  }else{
+    return("Stable")
+  }
+}
+
+comp_out$C_State = mapply(f_C_State, comp_out$m1, comp_out$m2)
+
+comp_out$C_State_V = ifelse(comp_out$C_State == "Stable", 1, 
+                            ifelse(comp_out$C_State == "Unstable", 0, -1))
+
 

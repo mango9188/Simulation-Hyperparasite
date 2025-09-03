@@ -25,15 +25,15 @@ M2 <- function(times, state, parms) {
 
 
 ### Model parameters ----
-times <- seq(0, 50000, by = 0.1)
+times <- seq(0, 50000, by = 1)
 #state <- c(H = 5, P1H = 0, P2H = 0, P1 = 1, P2 = 1, S = 5)
-state <- c(H = 0.1, P1H = 0, P2H = 0, P1 = 0.1, P2 = 0.0, S = 0.2)
+state <- c(H = 0.1, P1H = 0, P2H = 0, P1 = 0.1, P2 = 0, S = 0.2)
 #state <- c(H = 2.0989911, P1H = 0, P2H = 0.8868977, P1 = 1, P2 = 0.7605634, S = 1.7626948)
 #Change alpha and beta--
 parms <- c(epsilon = 1,
            r = 1, K = 10,
            a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
-           b1 = 0.2, b2 = 0.45, m1 = 0.04, m2 = 0.005, e1H = 0.5, e2H = 0.5,
+           b1 = 0.2, b2 = 0.45, m1 = 0.02, m2 = 0.02, e1H = 0.5, e2H = 0.5,
            o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
 
 #parms <- c(r = 1, K = 10,a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.0536, e1H = 0.5, e2H = 0.5,o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
@@ -48,15 +48,15 @@ tail(pop_size)
 pop_size %>%
   as.data.frame() %>%
   filter(time %% 1 == 0) %>%
-  #filter(time < 1000) %>%
+  filter(time < 2000) %>%
   #View()
-  pivot_longer(cols = c("H", "P1H", "P2H", "P1", "P2", "S" ), #"H", "P1H", "P2H", "P1", "P2", "S" 
+  pivot_longer(cols = c("H", "P1"), #"H", "P1H", "P2H", "P1", "P2", "S" 
              names_to = "species", values_to = "biomass") %>%
   #filter(species == c("H","S")) %>%
   ggplot(mapping = aes(x = time, y = biomass, color = species)) +
-  labs(x = "Time", y = "Biomass", title = expression(P[1[0]] == 1)) + #title = expression(P[1]~"win") paste0("r =", parms["r"])) expression(α[1] == 0.35)+ #title = expression(α[1] == 0.35 ~","~ β[1] == 0.2 )
+  labs(x = "Time", y = "Biomass") + #title = expression(P[1]~"win") paste0("r =", parms["r"])) expression(α[1] == 0.35)+ #title = expression(α[1] == 0.35 ~","~ β[1] == 0.2 ) title = expression(P[1[0]] == 1
   geom_line(lwd = 1) +
-  #geom_hline(yintercept = 0.29434410, color = "black", linetype = "dashed", size = 1) +
+  geom_hline(yintercept = 0.05683562, color = "black", linetype = "dashed", linewidth = 1) +
   scale_colour_manual(labels = c("H" = "Hyper", "P1" = expression(P[1]), "P1H" = expression(P[1/H]), "P2" = expression(P[2]), "P2H" = expression(P[2/H]), "S" = "Host"),
                       values = c("H" = "#C03728", "P1" = "#BCAAA4", "P1H" = "#82491E",
                                  "P2" = "#B0BEC5", "P2H" = "#546E7A", "S" = "#00AF66"))

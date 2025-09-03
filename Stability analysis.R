@@ -213,3 +213,4 @@ filter(comp_out, Stability == "Stable")
 
 #long-term average not always equals to equilibrium point!
 #It is not appropriate to plug in these value to test stability
+

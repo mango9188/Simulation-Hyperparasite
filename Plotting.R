@@ -1,6 +1,6 @@
 library(tidyverse)
 library(paletteer)
-library(patchwork)
+#library(patchwork)
 ##Read the simulation result
 
 comp_out = readRDS("Pre4A1")
@@ -89,12 +89,12 @@ outcome_labels <- c(
 
 ####Plot the result----
 
-ggplot(filter(comp_out, round(m2, 5) == 0.1), aes(x = a1, y = b1, z = Outcome2, fill = Outcome2)) +
+ggplot(comp_out, aes(x = a2, y = b2, fill = Stable_E)) +
   geom_tile() +
   #geom_point(filter(comp_out), mapping = aes(x = a1, y = b1, shape = Stability), color = "black", alpha = 0.2)+
-  labs(title = expression(m[2] == 0.1), x = expression(α[1]), y = expression(β[1]))+ #title = "δ = 0 (No vertical transmission)",  ~","~ r == 1.5
-  scale_x_continuous(expand = c(0, 0)) +
-  scale_y_continuous(expand = c(0, 0)) +
+  labs(x = expression(α[2]), y = expression(β[2]))+ #title = "δ = 0 (No vertical transmission)",  ~","~ r == 1.5
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 0.8, by = 0.05)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0, 0.8, by = 0.05)) +
   scale_fill_manual(values = final_colors, labels = outcome_labels) +
   #scale_fill_manual(values = as.character(paletteer_d("ggsci::default_igv")))+#automatically choose color
   #scale_fill_manual(values = setNames(paletteer_d("ggsci::default_igv")[1:length(all_comb)], all_comb))+
@@ -226,10 +226,14 @@ ggplot(comp_out, aes(x = factor(m1), y = m2, z = Outcome, fill = Outcome2)) +
 ############Plot the heatmap for m + IGR------------
 ggplot(filter(comp_out)) +
   geom_raster(mapping = aes(x = m1, y = m2, fill = Stable_E)) +
-  geom_contour(filter(comp_out, m2 < 0.057), mapping = aes(x = m1, y = m2, z = IGR2), breaks = 0, color = "grey", size = 1.2)+
-  geom_contour(filter(comp_out, m2 < 0.057), mapping = aes(x = m1, y = m2, z = IGR1), breaks = 0, color = "darkred", size = 1.2)+
+  geom_contour(filter(comp_out, m2 < 0.057), mapping = aes(x = m1, y = m2, z = IGR2), breaks = 0, color = "grey", linewidth = 1.2)+
+  geom_contour(filter(comp_out, m2 < 0.057), mapping = aes(x = m1, y = m2, z = IGR1), breaks = 0, color = "darkred", linewidth = 1.2)+
+  geom_contour(filter(comp_out, m1 > 0.05, m2 < 0.057), mapping = aes(x = m1, y = m2, z = C_State_V), breaks = 0, color = "darkblue", linewidth = 1.2)+
   
-  #geom_point(filter(comp_out, IGR2 > 0), mapping = aes(x = m1, y = m2), alpha = 0.8)+
+  
+  #geom_point(filter(comp_out, m1 > 0.05, m2 < 0.057, C_State == "Infeasible"), mapping = aes(x = m1, y = m2, shape = C_State), alpha = 0.1)+
+  #geom_point(filter(comp_out, IGRH2 > 0), mapping = aes(x = m1, y = m2), alpha = 0.8)+
+  #geom_point(filter(comp_out, IGRH1 > 0), mapping = aes(x = m1, y = m2), alpha = 0.8)+
   labs(title = expression(psi[1] == 1 ~","~ psi[2] == 1), x = expression(m[1]), y = expression(m[2]))+
   scale_x_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.01)) +
   scale_y_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.01)) +
