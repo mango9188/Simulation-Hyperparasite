@@ -7,7 +7,7 @@ parms = as.list(parms)
 
 ##for single strain (P1+P1H)
 with(parms, {
-  J11 = -c1*b1*P1*H-d
+  J11 = -c1*b1*P1-d
   J12 = h1*o1 
   J13 = -c1*b1*H
   J14 = 0
@@ -22,7 +22,7 @@ with(parms, {
   J41 = 0
   J42 = -psi1*a1*S
   J43 = -a1*S
-  J44 = r*(1-S/K) - a1*P1 - psi1*a1*P1H - S*r/K
+  J44 = r*(1-S/K) - a1*P1 - psi1*a1*P1H - (S*r)/K
   
   Jacobian = matrix(data = 
              c(J11, J12, J13, J14,

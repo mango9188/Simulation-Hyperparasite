@@ -228,10 +228,10 @@ ggplot(filter(comp_out)) +
   geom_raster(mapping = aes(x = m1, y = m2, fill = Stable_E)) +
   geom_contour(filter(comp_out, m2 < 0.057), mapping = aes(x = m1, y = m2, z = IGR2), breaks = 0, color = "grey", linewidth = 1.2)+
   geom_contour(filter(comp_out, m2 < 0.057), mapping = aes(x = m1, y = m2, z = IGR1), breaks = 0, color = "darkred", linewidth = 1.2)+
-  geom_contour(filter(comp_out, m1 > 0.05, m2 < 0.057), mapping = aes(x = m1, y = m2, z = C_State_V), breaks = 0, color = "darkblue", linewidth = 1.2)+
+  #geom_contour(filter(comp_out, m1 > 0.05, m2 < 0.057), mapping = aes(x = m1, y = m2, z = C_State_V), breaks = 0, color = "darkblue", linewidth = 1.2)+
   
   
-  #geom_point(filter(comp_out, m1 > 0.05, m2 < 0.057, C_State == "Infeasible"), mapping = aes(x = m1, y = m2, shape = C_State), alpha = 0.1)+
+  geom_point(filter(comp_out, m1 > 0.05, m2 < 0.057, C_State == "Infeasible"), mapping = aes(x = m1, y = m2, shape = C_State), alpha = 0.1)+
   #geom_point(filter(comp_out, IGRH2 > 0), mapping = aes(x = m1, y = m2), alpha = 0.8)+
   #geom_point(filter(comp_out, IGRH1 > 0), mapping = aes(x = m1, y = m2), alpha = 0.8)+
   labs(title = expression(psi[1] == 1 ~","~ psi[2] == 1), x = expression(m[1]), y = expression(m[2]))+

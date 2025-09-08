@@ -961,7 +961,7 @@ f_C_State = function(m1, m2){
     return("Stable")
   }
 }
-
+#To see the state of coexistence equilibrium (is stable/unstable, feasible/infeasible)
 comp_out$C_State = mapply(f_C_State, comp_out$m1, comp_out$m2)
 
 comp_out$C_State_V = ifelse(comp_out$C_State == "Stable", 1, 
