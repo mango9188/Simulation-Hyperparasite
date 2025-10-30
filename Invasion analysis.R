@@ -7,6 +7,7 @@ parms <- list(
   b1 = 0.2, m1 = 0.05, e1H = 0.5,
   o1 = 0.8, h1 = 1,  c1 = 0.9, d = 0.03, DL = 0)
 ## Leslie matrix for H and PiH's invasion growth rate----
+###For P1H+H invade P1----
 Leslie <- matrix(
   data = with(parms, {
     P1 = (r/a1)*(1-(m1/(e1*a1*K)))
@@ -18,6 +19,7 @@ Leslie <- matrix(
   ncol = 2,
   byrow = T)
 
+###For P2H+H invade P2----
 Leslie <- matrix(
   data = with(parms, {
     P2 = (r/a2)*(1-(m2/(e2*a2*K)))

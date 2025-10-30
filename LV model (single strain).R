@@ -14,13 +14,13 @@ M2_S <- function(times, state, parms) {
 
 ### Model parameters ----
 
-times <- seq(0, 10000, by = 1)
+times <- seq(0, 10000, by = 0.1)
 #state <- c(H = 1, P1H = 0, P1 = 2, S = 5)
 state <- c(H = 0.01, P1H = 0, P1 = 0.01, S = 0.2)
 #Change alpha and beta--
 parms <- c(r = 1, K = 10,
-           a1 = 0.5, psi1 = 1, e1 = 0.5,
-           b1 = 0.45, m1 = 0.05, e1H = 0.5,
+           a1 = 0.2, psi1 = 1, e1 = 0.5,
+           b1 = 0.12, m1 = 0.01, e1H = 0.5,
            o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.03, DL = 0)
 
 
@@ -28,7 +28,7 @@ parms <- c(r = 1, K = 10,
 pop_size = ode(func = M2_S, times = times, y = state, parms = parms)
 
 tail(pop_size)
-tail(mutate(as.data.frame(pop_size), P1total = P1 + P1H))
+#tail(mutate(as.data.frame(pop_size), P1total = P1 + P1H))
 ### Plot the result ----
 ## Plotting
 pop_size %>%
@@ -40,7 +40,7 @@ pop_size %>%
                names_to = "species", values_to = "biomass") %>%
   #filter(species == c("H","S")) %>%
   ggplot(mapping = aes(x = time, y = biomass, color = species)) +
-  labs(x = "Time", y = "Biomass", title = paste0("m = ", parms["m1"])) +  #paste0("r =", parms["r"]))β
+  labs(x = "Time", y = "Biomass", title = paste0("α = ", parms["a1"], ", β = ", parms["b1"])) +  #paste0("r =", parms["r"]))β
   geom_line(lwd = 1) +
   scale_colour_manual(labels = c("H" = "Hyper", "P1" = expression(P[1]), 
                                  "P1H" = expression(P[1/H]), "S" = "Host"),

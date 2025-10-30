@@ -1,6 +1,5 @@
 library(deSolve)
 library(tidyverse)
-library(paletteer)
 library(pracma) 
 
 #### ODE setup----

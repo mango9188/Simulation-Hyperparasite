@@ -1,5 +1,10 @@
 ####This script is for master thesis.
+#Read the package and plot setting
+library(tidyverse)
+source("M_Theme setting.R", encoding = 'CP950', echo = T)
+
 #Function setting----
+{
 Jacobian_full = function(parms, E) {
   with(c(parms, E), {
     matrix(data =
@@ -39,6 +44,19 @@ Jacobain_sgs = function(parms, E) {
              J41, J42, J43, J44), 
          byrow = T, nrow = 4, ncol = 4)
 })} ##for single strain (S, P1, P1H, and H)
+
+Jacobain_sgsN = function(parms, E){
+  with(c(parms, E), {
+    J11 = e1*a1*S-m1
+    J12 = e1*a1*P1
+    J21 = -a1*S
+    J22 = r*(1-S/K) - a1*P1 - S*r/K
+    matrix(data = 
+             c(J11, J12, 
+               J21, J22), 
+           byrow = T, nrow = 2, ncol = 2)
+  })
+} ##for single strain (S, P1)
 
 Eigen = function(J) {
   if (any(is.na(J)) || any(is.infinite(J))){
@@ -82,6 +100,21 @@ f_E_C = function(parms){
     P1H = A1 * P1
     P2H = A2 * P2
     
+    return(setNames(
+      c(H, P1H, P2H, P1, P2, S),
+      c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')
+    )) 
+  })
+}
+
+f_E_S = function(parms){
+  with(parms,{
+    H = 0
+    P1H = 0
+    P2H = 0
+    P1 = 0
+    P2 = 0
+    S = K
     return(setNames(
       c(H, P1H, P2H, P1, P2, S),
       c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')
@@ -181,23 +214,20 @@ f_E_P2H = function(parms){
   })
   
 }
-
+}
 
 #Single strain model with no H (i.e., S and P1)----
 parms = list(
-  r = 1, K = 10,
-  a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
-  b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.05, e1H = 0.5, e2H = 0.5,
-  o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
+  r = 1, K = 10, a1 = 0.35, e1 = 0.5, m1 = 0.05)
 
 #Create data frame to expand m1
-comp_out = expand.grid(m1 = seq(0.0001, 0.1, by = 0.0001))
+comp_out = expand.grid(m1 = seq(0.01, 0.1, by = 0.01))
 comp_out = as.data.frame(cbind(comp_out,
                                 matrix(0, 
                                        nrow = dim(comp_out)[1],
                                        ###dim(data)[1] is the number of row of data; [2] is col
-                                       ncol = 6)))
-names(comp_out) = c("m1", "H", "P1H", "P2H", "P1", "P2", "S")
+                                       ncol = 2+1)))
+names(comp_out) = c("m1", "P1", "S", "Stability")
 
 comp_out
 
@@ -205,7 +235,31 @@ comp_out
 for (i in 1:dim(comp_out)[1]) {
   temp_parms = parms
   temp_parms["m1"]  = comp_out[i, "m1"]
-  comp_out[i, c("H", "P1H", "P2H", "P1", "P2", "S")] = f_E_P1(temp_parms)
+  E_P1 = f_E_P1(temp_parms)
+  E_S = f_E_S(temp_parms)
+  Lambda_E_P1 = Eigen(Jacobain_sgsN(temp_parms, E_P1))
+  Lambda_E_S = Eigen(Jacobain_sgsN(temp_parms, E_S))
+  
+  Stable_E = c()
+  
+  if(!is.na(Lambda_E_P1) && is.finite(Lambda_E_P1) && Lambda_E_P1 < 0 && all(E_P1[c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')] >= 0)){
+    Stable_E = c(Stable_E, "P1")
+    comp_out[i, "Stability"] = "Stable"
+    comp_out[i, c("P1", "S")] = f_E_P1(temp_parms)[c("P1", "S")]
+  }
+  if(!is.na(Lambda_E_S) && is.finite(Lambda_E_S) && Lambda_E_S < 0 && all(E_S[c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')] >= 0)){
+    Stable_E = c(Stable_E, "S")
+    comp_out[i, "Stability"] = "Stable"
+    comp_out[i, c("P1", "S")] = f_E_P1(temp_parms)[c("P1", "S")]
+  }
+
+  comp_out[i, "Stable_E"] = paste(Stable_E, collapse = ",")
+  
+  if(length(Stable_E) == 0){
+    comp_out[i, "Stability"] = "Unstable"
+  }else if(length(Stable_E) != 1){
+    comp_out[i, "Stability"] = "ASS"
+  }
 }
 
 #Bifurcation plot for S and P1
@@ -219,19 +273,14 @@ ggplot(D, aes(x = m1, y = Abundance, color = Species)) +
   geom_line(mapping = aes(x = m1, y = Abundance, color = Species), lwd = 1) +
   #geom_line(filter(D, Species == "total"), mapping = aes(x = m1, y = Abundance, color = Species), lwd = 0.8, linetype = 2) +
   #scale_linetype_manual(values = c("Stable" = "solid", "Unstable" = "dashed")) +
-  labs(title = "Single strain model (no H)", x = expression(m[1]), y = "Abundance", color = "Species")+
+  labs(title = "Single strain model (no H)", x = "Mortality (m)", y = "Abundance", color = "Species")+
   scale_y_continuous() +
   scale_x_continuous() + #breaks = c(seq(0.2, 1, by = 0.2))
   scale_colour_manual(labels = 
-                        c("P1" = expression(P[1]), "P1H" = expression(P[1/H]),
-                          "P2" = expression(P[2]), "P2H" = expression(P[2/H]),
-                          "S" = "Host", "H" = "Hyper"),
-                      values = c("P1" = "#BCAAA4", "P1H" = "#82491E",
-                                 "P2" = "#B0BEC5", "P2H" = "#546E7A", 
-                                 "S" = "#00AF66", "H" = "#C03728",
-                                 "P.total" = "black")) +
-  #scale_shape_manual(values = c("Stable" = 16, "Unstable" = 3)) + 
+                        c("P1" = "Pathogen", "S" = "Host"),
+                      values = c("P1" = "#BCAAA4", "S" = "#00AF66"))+
   theme(axis.title.y.right = element_text(angle = 90))
+
 ggsave("Single strain model with no H.png", width = 15, height = 11, units = "cm", dpi = 800)
 
 #Single strain model with H (i.e., S, P1, P1H, and H)----
@@ -239,16 +288,16 @@ parms = list(
   r = 1, K = 10,
   a1 = 0.5, psi1 = 1, e1 = 0.5, 
   b1 = 0.45, m1 = 0.05, e1H = 0.5, 
-  o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.03, DL = 0)
+  o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.02, DL = 0) #c1 = 0.9
 
 ##Create data frame to expand m1----
-comp_out = expand.grid(m1 = seq(0.0001, 0.1, by = 0.0001))
+comp_out = expand.grid(m1 = seq(0.001, 0.1, by = 0.001))
 comp_out = as.data.frame(cbind(comp_out,
                                matrix(0, 
                                       nrow = dim(comp_out)[1],
                                       ###dim(data)[1] is the number of row of data; [2] is col
-                                      ncol = 6)))
-names(comp_out) = c("m1", "H", "P1H", "P2H", "P1", "P2", "S")
+                                      ncol = 4)))
+names(comp_out) = c("m1", "H", "P1H", "P1", "S")
 
 comp_out
 
@@ -260,19 +309,38 @@ for (i in 1:dim(comp_out)[1]) {
   Lambda_P1H = Eigen(Jacobain_sgs(temp_parms, E_P1H))
   E_P1 = f_E_P1(temp_parms)
   Lambda_P1 = Eigen(Jacobain_sgs(temp_parms, E_P1))
+  E_S = f_E_S(temp_parms)
+  Lambda_S = Eigen(Jacobain_sgs(temp_parms, E_S))
   
+  Stable_E = c()
   if (!is.na(Lambda_P1H) == T && is.finite(Lambda_P1H) == T && Lambda_P1H < 0 && all(!is.na(E_P1H) == T)){
-    comp_out[i, c("H", "P1H", "P2H", "P1", "P2", "S")] = E_P1H
-  }else if(!is.na(Lambda_P1) == T && is.finite(Lambda_P1) == T && Lambda_P1 < 0 && all(!is.na(E_P1) == T)){
-    comp_out[i, c("H", "P1H", "P2H", "P1", "P2", "S")] = E_P1
-  }else{
-    comp_out[i, c("H", "P1H", "P2H", "P1", "P2", "S")] = rep(NA, 6)
+    Stable_E = c(Stable_E, "P1H")
+    comp_out[i, "Stability"] = "Stable"
+    comp_out[i, c("H", "P1H", "P1", "S")] = E_P1H[c("H", "P1H", "P1", "S")]
+  }
+  if(!is.na(Lambda_P1) == T && is.finite(Lambda_P1) == T && Lambda_P1 < 0 && all(!is.na(E_P1) == T)){
+    Stable_E = c(Stable_E, "P1")
+    comp_out[i, "Stability"] = "Stable"
+    comp_out[i, c("H", "P1H", "P1", "S")] = E_P1[c("H", "P1H", "P1", "S")]
+  }
+  if(!is.na(Lambda_S) == T && is.finite(Lambda_S) == T && Lambda_S < 0 && all(!is.na(E_S) == T)){
+    Stable_E = c(Stable_E, "S")
+    comp_out[i, "Stability"] = "Stable"
+    comp_out[i, c("H", "P1H", "P1", "S")] = E_S[c("H", "P1H", "P1", "S")]
+  }
+  
+  comp_out[i, "Stable_E"] = paste(Stable_E, collapse = ",")
+  if(length(Stable_E) == 0){
+    comp_out[i, "Stability"] = "Unstable"
+  }else if(length(Stable_E) != 1){
+    comp_out[i, "Stability"] = "ASS"
   }
 }
+
 ###It is possible that data contains NA because m1 can be large enough that P1 would no longer persist H.
 comp_out = mutate(comp_out, P.total = P1+P1H)
 
-##Bifurcation plot for S and P1----
+##Bifurcation plot for S and P1H----
 D = 
   comp_out %>%
   select(c(m1, P1, P1H, H, S, P.total)) %>% #P1, P2, P1H, P2H, H, S
@@ -281,19 +349,93 @@ D =
 
 ggplot(D, aes(x = m1, y = Abundance, color = Species)) +
   geom_line(mapping = aes(x = m1, y = Abundance, color = Species), lwd = 1) +
-  #geom_line(filter(D, Species == "total"), mapping = aes(x = m1, y = Abundance, color = Species), lwd = 0.8, linetype = 2) +
-  #scale_linetype_manual(values = c("Stable" = "solid", "Unstable" = "dashed")) +
-  labs(title = "Single strain model", x = expression(m[1]), y = "Abundance", color = "Species")+
-  scale_y_continuous() +
-  scale_x_continuous() + #breaks = c(seq(0.2, 1, by = 0.2))
+  labs(title = expression(d == 0.02), x = "Mortality (m)", y = "Abundance", color = "Species")+
+  #geom_vline(xintercept = 0.1462919, color = "black", linetype = 2, linewidth = 1) +
+  #breaks = c(seq(0.2, 1, by = 0.2))
+  ylim(0,3)+
   scale_colour_manual(labels = 
-                        c("P1" = expression(P[1]), "P1H" = expression(P[1/H]),
-                          "P2" = expression(P[2]), "P2H" = expression(P[2/H]),
-                          "S" = "Host", "H" = "Hyper"),
+                        c("P1" = "Pathogen", "P1H" = "Pathogen/H",
+                          "S" = "Host", "H" = "Hyperparasite"),
                       values = c("P1" = "#BCAAA4", "P1H" = "#82491E",
-                                 "P2" = "#B0BEC5", "P2H" = "#546E7A", 
                                  "S" = "#00AF66", "H" = "#C03728",
                                  "P.total" = "black")) +
   #scale_shape_manual(values = c("Stable" = 16, "Unstable" = 3)) + 
   theme(axis.title.y.right = element_text(angle = 90))
-ggsave("Single strain model with H (2).png", width = 15, height = 11, units = "cm", dpi = 800)
+ggsave("Single strain model with H (d 0p02).png", width = 15, height = 11, units = "cm", dpi = 800)
+
+
+##To find the boundary of H invasion----
+parms = list(
+  r = 1, K = 10,
+  a1 = 0.5, psi1 = 1, e1 = 0.5, 
+  b1 = 0.45, e1H = 0.5, 
+  o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.03, DL = 0)
+
+Min.m = function(m1){
+  with(parms, {
+    P_a = (r / a1) * (1 - (m1 / (e1 * a1 * K)))
+    P_b = (m1 + o1) * d /(h1 * o1 * b1 - c1 * b1 * (m1 + o1))
+    return(P_a - P_b)
+    })
+}
+
+uniroot(Min.m, interval = c(0.01, 0.075), tol = 1e-16)$root
+
+
+
+##Find dP*/dm----
+#For single strain model
+parms = list(
+  r = 1, K = 10,
+  a1 = 0.5, psi1 = 1, e1 = 0.5, 
+  b1 = 0.45, e1H = 0.5, m1 = 0.05643642,
+  o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.03, DL = 0)
+
+f_E_P1H = function(parms){
+  with(parms,{
+    A = -( (e1H*psi1^2*a1^2*b1^2*P1*K) / (r*(o1+m1)^2) )
+    B = ( (e1H*psi1*a1*b1 - e1H*psi1*a1^2*b1*P1) / (o1+m1) - (e1*psi1*a1^2*b1*P1) / (r*(o1+m1)) )*K - b1
+    C = (e1*a1 - (e1*a1^2*P1)/r)*K - m1
+    E = B^2 - 4*A*C
+    if(E < 0 || is.na(E)){
+      H = NA
+    }else{
+      H1 = (-B + sqrt(B^2-4*A*C)) / (2*A)
+      H2 = (-B - sqrt(B^2-4*A*C)) / (2*A)
+      H_12 = c(H1,H2)
+      H_12 = H_12[H_12 > 0 & !is.na(H_12) & is.finite(H_12)]
+      if(length(H_12) == 0){
+        H = NA
+      } else {
+        H = min(H_12) #Choose the smallest one which is more biologically meaningful
+      }
+    }
+    S = ((b1 * H + m1) * (m1 + o1))/ (e1 * a1 * (m1 + o1) + e1H * psi1 * a1 * b1 * H)
+    P1H = P1 * (b1 * H) / (m1 + o1)
+    P2H = 0
+    P2 = 0
+    return(setNames(
+      c(H, P1H, P2H, P1, P2, S),
+      c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')
+    )) 
+  })
+}
+
+E1H_P1 = expression((d*(o1+m1))/(b1*h1*o1 - c1*b1*(o1+m1)))
+
+E1H_dP1_dm = D(E1H_P1, "m1")
+
+with(parms,{
+  eval(dP1_dm)
+})
+
+E1_P1 = expression((r/a1)*(1-(m1/(e1*a1)/K)))
+
+E1_dP1_dm = D(E1_P1, "m1") #-((r/a1) * (1/(e1 * a1)/K))
+with(parms,{
+  eval(E1_dP1_dm)
+})
+
+library(Deriv)
+E1H_P1 = function(m1) {(d*(o1+m1))/(b1*h1*o1 - c1*b1*(o1+m1))}
+E1H_dP_dm = Deriv(E1H_P1, "m1")
