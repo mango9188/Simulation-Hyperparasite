@@ -19,15 +19,14 @@ with(as.list(c(parms, state)), {
 })
 
 ### Model parameters ----
-times <- seq(0, 10000, by = 0.1)
-state <- c(H = 3.6716297, P1H = 0.2333761, P2H = 0.1687427, P1 = 1.4767783, P2 = 0.4522385, S = 0.9095539)
-
-#state <- c(H = 0.1, P1H = 0, P2H = 0, P1 = 0.01, P2 = 0.01, S = 0.1)
+times <- seq(0, 10000, by = 1)
+state <- c(H = 5, P1H = 0.2333761, P2H = 0.1687427, P1 = 1.4767783, P2 = 0.4522385, S = 0.9095539)
+state <- c(H = 0.1, P1H = 0, P2H = 0, P1 = 0.01, P2 = 0.01, S = 0.1)
 #Change alpha and beta--
 parms <- c(epsilon = 1,
            r = 1, K = 10,
            a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
-           b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.01, e1H = 0.5, e2H = 0.5,
+           b1 = 0.2, b2 = 0.45, m1 = 0.03, m2 = 0.001, e1H = 0.5, e2H = 0.5,
            o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0) #h
 
 ### Model application ----
@@ -40,11 +39,11 @@ sd(pop_size[(nrow(pop_size)-round(length(times)*0.35)):nrow(pop_size),"S"]) > 1e
 pop_size %>%
   as.data.frame() %>%
   filter(time %% 1 == 0) %>%
-  filter(time < 50) %>%
+  #filter(time < 50) %>%
   pivot_longer(cols = c("H", "P1H", "P2H", "P1", "P2", "S"), #"H", "P1H", "P2H", "P1", "P2", "S" 
              names_to = "species", values_to = "biomass") %>%
   ggplot(mapping = aes(x = time, y = biomass, color = species)) +
-  labs(x = "Time", y = "Biomass", title = expression(H[0] == 0)) + #title = expression(P[1]~"win") paste0("r =", parms["r"])) expression(α[1] == 0.35)+ #title = expression(α[1] == 0.35 ~","~ β[1] == 0.2 ) title = expression(P[1[0]] == 1
+  labs(x = "Time", y = "Biomass") + #title = expression(P[1]~"win") paste0("r =", parms["r"])) expression(α[1] == 0.35)+ #title = expression(α[1] == 0.35 ~","~ β[1] == 0.2 ) title = expression(P[1[0]] == 1
   geom_line(lwd = 1) +
   #geom_hline(yintercept = 0.05683562, color = "black", linetype = "dashed", linewidth = 1) +
   scale_colour_manual(labels = c("H" = "Hyper", "P1" = expression(P[1]), "P1H" = expression(P[1/H]), "P2" = expression(P[2]), "P2H" = expression(P[2/H]), "S" = "Host"),

@@ -104,7 +104,7 @@ with(parms,{
 
 
 
-#For P_i and P_i/H to invade E_{S P_j P_j/H}----
+#For P_i and P_{i/H} to invade E_{S P_j P_j/H}----
 ## Leslie matrix for Pi and Pi/H's invasion growth rate----
 parms = list(r = 1, K = 10,
            a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
@@ -178,7 +178,7 @@ with(parms,{
   return(c(eigen1, eigen2))
 })
 
-##Quasi equilibrium Approach 1 (For P1+P1H invade P2+P2H equilibrium)----
+##Quasi equilibrium Approach 1.1 (For P1+P1H invade P2+P2H equilibrium)----
 with(parms,{
   P2 = (d*(o2+m2))/(b2*h2*o2 - c2*b2*(o2+m2))
   A = -( (e2H*psi2^2*a2^2*b2^2*P2*K) / (r*(o2+m2)^2) )
@@ -213,10 +213,64 @@ with(parms,{
     ifelse(phiPa > 0 && phiPa < 1, phiPa,
            ifelse(phiPb > 0 && phiPb < 1, phiPb, "Not meaningful"))
   print(c(phiPa, phiPb))
-  #IGR = e1*a1*S*phiP + e1H*psi1*a1*S*(1-phiP) - (m1+o1)*(1-phiP) - m1*phiP
-  #print(IGR)
+  IGR = e1*a1*S*phiP + e1H*psi1*a1*S*(1-phiP) - (m1+o1)*(1-phiP) - m1*phiP
+  print(IGR)
 })
 
+##Quasi equilibrium Approach 1.2 (For P1+P1H invade P2+P2H equilibrium)----
+with(parms,{
+  P2 = (d*(o2+m2))/(b2*h2*o2 - c2*b2*(o2+m2))
+  A = -( (e2H*psi2^2*a2^2*b2^2*P2*K) / (r*(o2+m2)^2) )
+  B = ( (e2H*psi2*a2*b2 - e2H*psi2*a2^2*b2*P2) / (o2+m2) - (e2*psi2*a2^2*b2*P2) / (r*(o2+m2)) )*K - b2
+  C = (e2*a2 - (e2*a2^2*P2)/r)*K - m2
+  E = B^2 - 4*A*C
+  if(E < 0 || is.na(E)){
+    H = NA
+  }else{
+    H1 = (-B + sqrt(B^2-4*A*C)) / (2*A)
+    H2 = (-B - sqrt(B^2-4*A*C)) / (2*A)
+    H_12 = c(H1,H2)
+    H_12 = H_12[H_12 > 0 & !is.na(H_12) & is.finite(H_12)]
+    if(length(H_12) == 0){
+      H = NA
+    } else {
+      H = min(H_12) #Choose the smallest one which is more biologically meaningful
+    }
+  }
+  S = ((b2 * H + m2) * (m2 + o2))/ (e2 * a2 * (m2 + o2) + e2H * psi2 * a2 * b2 * H)
+
+  PHI2 = b1*H
+
+  PHI1 = b1*H + m1 - (m1+o1) - e1*a1*S
+
+  PHI0 = -e1H*psi1*a1*S
+  
+  phiPa = (-PHI1 + sqrt(PHI1^2 - 4*PHI2*PHI0)) / (2*PHI2)
+  phiPb = (-PHI1 - sqrt(PHI1^2 - 4*PHI2*PHI0)) / (2*PHI2)
+  #note that phiP must be greater than zero and smaller than 1.
+  phiP = 
+    ifelse(phiPa > 0, phiPa,
+           ifelse(phiPb > 0, phiPb, "Not meaningful"))
+  print(c(phiPa, phiPb))
+  IGR = b1*H*phiP - (m1+o1)
+  print(IGR)
+})
+
+
+##Quasi equilibrium Approach 2 (shorcut) (For P1+P1H invade P2+P2H equilibrium)----
+with(parms, {
+  P2 = (d*(o2+m2))/(b2*h2*o2 - c2*b2*(o2+m2))
+  A = -( (e2H*psi2^2*a2^2*b2^2*P2*K) / (r*(o2+m2)^2) )
+  B = ( (e2H*psi2*a2*b2 - e2H*psi2*a2^2*b2*P2) / (o2+m2) - (e2*psi2*a2^2*b2*P2) / (r*(o2+m2)) )*K - b2
+  C = (e2*a2 - (e2*a2^2*P2)/r)*K - m2
+  H1 = (-B-sqrt(B^2 - 4*A*C)) / (2*A)
+  H2 = (-B+sqrt(B^2 - 4*A*C)) / (2*A)
+  H = ifelse(H1 > 0, H1, H2)
+  S = ((b2 * H + m2) * (m2 + o2))/ (e2 * a2 * (m2 + o2) + e2H * psi2 * a2 * b2 * H)
+  IGR = e1*a1*S - b1*H - m1 + (b1*e1H*a1*S*H) / (m1+o1)
+  return(IGR)
+})
+#This will not be the actual IGR
 
 #Data analysis----
 parms = list(

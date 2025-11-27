@@ -429,17 +429,17 @@ ggplot() +
   #scale_shape_manual(values = c("Stable" = 16, "Unstable" = 3)) + 
   theme(axis.title.y.right = element_text(angle = 90))
 ggsave("ASS d 003 m1 005 S.png", width = 15, height = 11, units = "cm", dpi = 800)
-#############Bifurcation for m (ASS_2)-------------
+#############Bifurcation for m (ASS from list data)-------------
 D = 
-  comp_out_expanded %>%
+  comp_out %>%
   mutate(P2T = P2+P2H) %>%
   select(c(m1, m2, P2T, Stable_E)) %>% #P1, P2, P1H, P2H, H, S
   filter(round(m1, 5) == 0.05) %>%
   pivot_longer(names_to = "Species", values_to = "Abundance", -c(m1, m2, Stable_E))
 #gather(key = Species, value = Abundance, -c(a1, r)) %>% #using gather()
 
-ggplot(D, aes(x = m2, y = Abundance, color = Species, linetype = Stable_E)) +
-  geom_line(filter(D, Species != "total"), mapping = aes(x = m2, y = Abundance, color = Species), lwd = 1) +
+ggplot(D, aes(x = m2, y = Abundance, color = Species)) +
+  geom_point(D, mapping = aes(shape = Stable_E)) +
   #geom_line(filter(D, Species == "total"), mapping = aes(x = m1, y = Abundance, color = Species), lwd = 0.8, linetype = 2) +
   #scale_linetype_manual(values = c("Stable" = "solid", "Unstable" = "dashed")) +
   labs(title = expression(d == 0.03 ~","~ m[1] == 0.05), x = expression(m[2]), y = "Abundance", color = "Species")+
@@ -455,3 +455,23 @@ ggplot(D, aes(x = m2, y = Abundance, color = Species, linetype = Stable_E)) +
                                  "total" = "black")) +
   #scale_shape_manual(values = c("Stable" = 16, "Unstable" = 3)) + 
   theme(axis.title.y.right = element_text(angle = 90))
+
+#############Heat map of H to change the equilibirum-----
+comp_out = readRDS("H to change the equilibirum from Pre4A1 Press1")
+D = 
+  comp_out %>%
+  filter(m1 == 0.05)
+
+ggplot(data = D)+
+  geom_tile(mapping = aes(x = m2, y = delta_H, fill = Outcome))+
+  labs(title = expression(), x = expression(m[2]), y = expression(delta~H))+
+  #scale_x_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.01)) +
+  #scale_y_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.01)) +
+  scale_fill_manual(values = final_colors, labels = outcome_labels) +
+  theme(panel.grid = element_blank(),
+        plot.title = element_text(hjust = 0.5, size = 20),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15))
+  #coord_fixed(ratio = 1)

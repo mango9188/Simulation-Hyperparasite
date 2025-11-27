@@ -260,47 +260,6 @@ for(i in 1:dim(comp_out)[1]){
 end_time <- Sys.time()
 end_time - start_time
 
-# --- 展開 ASS 資料 ---
-library(dplyr)
-library(tidyr)
-library(purrr)
-
-# 建立一個能根據 Stable_E 展開的函數
-expand_ass <- function(row, parms){
-  stable_list <- strsplit(row$Stable_E, ",")[[1]]
-  
-  # 如果不是 ASS，直接回傳原本那列
-  if(length(stable_list) <= 1) return(row)
-  
-  # 否則對每個穩定點建立新的列
-  new_rows <- map_dfr(stable_list, function(st) {
-    E_func <- get(paste0("f_E_", st))
-    E_val <- E_func(c(parms, m1 = row$m1, m2 = row$m2))
-    
-    data.frame(
-      m1 = row$m1,
-      m2 = row$m2,
-      H = E_val["H"],
-      P1H = E_val["P1H"],
-      P2H = E_val["P2H"],
-      P1 = E_val["P1"],
-      P2 = E_val["P2"],
-      S = E_val["S"],
-      Stability = "Stable",
-      Stable_E = st,
-      stringsAsFactors = FALSE
-    )
-  })
-  
-  return(new_rows)
-}
-
-# 套用到整個 comp_out
-comp_out_expanded <- comp_out %>%
-  # 把每列資料依據 Stable_E 處理
-  split(.$Stable_E) %>%
-  map_dfr(~expand_ass(.x, parms))
-
 
 #### Data analysis ----
 extinct_thres = 1e-7

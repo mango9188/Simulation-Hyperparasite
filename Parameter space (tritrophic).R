@@ -19,11 +19,11 @@ times <- seq(0, 6000, by = 0.1)
 state <- c(H = 0.1, P1 = 0.1, S = 0.2)
 #Change alpha and beta--
 parms <- c(r = 1, K = 10,
-           a1 = 0.5, psi1 = 1, e1 = 0.5,
-           b1 = 0.45, m1 = 0.8, e1H = 0.5,
+           a1 = 0.35, psi1 = 1, e1 = 0.5,
+           b1 = 0.2, m1 = 0.8, e1H = 0.5,
            o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.03, DL = 0)
 
-comp_out = expand.grid(m1 = seq(1, 2.5, by = 0.05))
+comp_out = expand.grid(m1 = seq(0, 1, by = 0.1))
 
 #### Create saving space for simulation output----
 #combine different parameters and different state variables together
@@ -53,29 +53,24 @@ for(i in 1:dim(comp_out)[1]){
 end_time <- Sys.time()
 end_time - start_time
 
-###Data analysis----
-extinct_thres = 1e-7
-comp_out$Outcome =
-  ifelse(comp_out[, "H"] < extinct_thres, "H extincts", "Coexist")
-
 
 ####Plot the result----
 
 ###bifurcation plot
 comp_out %>%
-  select(c(m1, P1)) %>% #m1, H, P1, S
+  select(c(m1, H, P1, S, P1)) %>% #m1, H, P1, S
   #mutate(Total = P1H + P1 + H + S) %>%
   pivot_longer(names_to = "Species", values_to = "Abundance", -c(m1)) %>%
   ggplot(aes(x = m1, y = Abundance, color = Species)) +
   geom_line(lwd = 1) + 
-  labs(title = "Tritrophic model", x = "Mortality (m)", y = "Abundance", color = "Species")+
+  labs(title = "With predator", x = "Pathogen mortality", y = "Abundance", color = "Species")+
   scale_colour_manual(labels = 
                         c("P1" = "Pathogen", "P1H" = expression(P[1/H]),
-                          "S" = "Host", "H" = "Hyperparasite", "Total" = "Total"),
+                          "S" = "Host", "H" = "Predator", "Total" = "Total"),
                       values = c("P1" = "#BCAAA4", "P1H" = "#82491E",
                                  "S" = "#00AF66", "H" = "#C03728", "Total" = "blue"))
 
 
-ggsave("Tritrophic model.png", width = 15, height = 11, units = "cm", dpi = 800)
+ggsave("5min predator.png", width = 15, height = 11, units = "cm", dpi = 800)
 ##Save the simulation result
 #saveRDS(comp_out, "SS2")
