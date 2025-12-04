@@ -31,20 +31,31 @@ unspecified_outcomes <- setdiff(unique_outcomes, names(mycolor))
 extra_colors <- paletteer_d("ggsci::default_igv")[1:length(unspecified_outcomes)]
 final_colors <- c(mycolor, setNames(extra_colors, unspecified_outcomes))
 
+# outcome_labels <- c(
+#   "TTTTT" = "Coexistence",
+#   "TFTTT" = expression(P[1/H] ~ "excluded"),
+#   "TTFTT" = expression(P[2/H] ~ "excluded"),
+#   "FFFTT" = expression(P[1] + P[2] ~ "win"),
+#   "TTFTF" = expression(P[1] + P[1/H] ~ "win"),
+#   "FFFTF" = expression(P[1] ~ "wins"),
+#   "TFTFT" = expression(P[2] + P[2/H] ~ "win"),
+#   "FFFFT" = expression(P[2] ~ "wins"),
+#   "FFFFF" = "Unstable"
+# )
 outcome_labels <- c(
   "TTTTT" = "Coexistence",
   "TFTTT" = expression(P[1/H] ~ "excluded"),
   "TTFTT" = expression(P[2/H] ~ "excluded"),
-  "FFFTT" = expression(P[1] + P[2] ~ "win"),
-  "TTFTF" = expression(P[1] + P[1/H] ~ "win"),
-  "FFFTF" = expression(P[1] ~ "wins"),
-  "TFTFT" = expression(P[2] + P[2/H] ~ "win"),
-  "FFFFT" = expression(P[2] ~ "wins"),
+  "FFFTT" = expression(P[1] + P[2]),
+  "TTFTF" = expression(E[1~H]),
+  "FFFTF" = expression(E[1]),
+  "TFTFT" = expression(E[2~H]),
+  "FFFFT" = expression(E[2]),
   "FFFFF" = "Unstable"
 )
 
 
-
+1
 ####Plot the result----
 
 ggplot(comp_out, aes(x = a2, y = b2, fill = Stable_E)) +
@@ -431,9 +442,9 @@ ggplot() +
 ggsave("ASS d 003 m1 005 S.png", width = 15, height = 11, units = "cm", dpi = 800)
 #############Bifurcation for m (ASS from list data)-------------
 D = 
-  comp_out %>%
-  mutate(P2T = P2+P2H) %>%
-  select(c(m1, m2, P2T, Stable_E)) %>% #P1, P2, P1H, P2H, H, S
+  readRDS("Pre4A1_FullASS 2") %>%
+  #mutate(P2T = P2+P2H) %>%
+  select(c(m1, m2, P1, P2, P1H, P2H, H, S, Stable_E)) %>% #P1, P2, P1H, P2H, H, S
   filter(round(m1, 5) == 0.05) %>%
   pivot_longer(names_to = "Species", values_to = "Abundance", -c(m1, m2, Stable_E))
 #gather(key = Species, value = Abundance, -c(a1, r)) %>% #using gather()
@@ -442,13 +453,14 @@ ggplot(D, aes(x = m2, y = Abundance, color = Species)) +
   geom_point(D, mapping = aes(shape = Stable_E)) +
   #geom_line(filter(D, Species == "total"), mapping = aes(x = m1, y = Abundance, color = Species), lwd = 0.8, linetype = 2) +
   #scale_linetype_manual(values = c("Stable" = "solid", "Unstable" = "dashed")) +
-  labs(title = expression(d == 0.03 ~","~ m[1] == 0.05), x = expression(m[2]), y = "Abundance", color = "Species")+
+  labs(x = expression(m[2]), y = "Abundance", color = "Species")+ #title = expression(m[1] == 0.05),
   scale_y_continuous() +
   scale_x_continuous() + #breaks = c(seq(0.2, 1, by = 0.2))
   scale_colour_manual(labels = 
                         c("P1" = expression(P[1]), "P1H" = expression(P[1/H]),
-                          "P2" = expression(P[2]), "P2H" = expression(P[2/H]), "P2T" = expression(P[2]~"total"),
-                          "S" = "Host", "H" = "Hyper"),
+                          "P2" = expression(P[2]), "P2H" = expression(P[2/H]), 
+                          "P2T" = expression(P[2]~"total"),
+                          "S" = "Host", "H" = "Hyperparasite"),
                       values = c("P1" = "#BCAAA4", "P1H" = "#82491E",
                                  "P2" = "#B0BEC5", "P2H" = "#546E7A", "P2T" = "#B0BEC5",
                                  "S" = "#00AF66", "H" = "#C03728",
@@ -457,14 +469,14 @@ ggplot(D, aes(x = m2, y = Abundance, color = Species)) +
   theme(axis.title.y.right = element_text(angle = 90))
 
 #############Heat map of H to change the equilibirum-----
-comp_out = readRDS("H to change the equilibirum from Pre4A1 Press1")
+comp_out = readRDS("H to change the equilibirum from Pre4A1 Press001")
 D = 
   comp_out %>%
   filter(m1 == 0.05)
 
 ggplot(data = D)+
   geom_tile(mapping = aes(x = m2, y = delta_H, fill = Outcome))+
-  labs(title = expression(), x = expression(m[2]), y = expression(delta~H))+
+  labs(title = expression(), x = expression(m[2]), y = expression(Delta~H))+
   #scale_x_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.01)) +
   #scale_y_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.01)) +
   scale_fill_manual(values = final_colors, labels = outcome_labels) +
@@ -475,3 +487,16 @@ ggplot(data = D)+
         axis.title.x = element_text(size = 15),
         axis.title.y = element_text(size = 15))
   #coord_fixed(ratio = 1)
+
+#############Heat map of H to change the equilibirum (bisec)-----
+comp_out = readRDS("H to change the equilibirum from Pre4A1 bisec 2")
+D = 
+  comp_out %>%
+  filter(m1 == 0.05)%>%
+  mutate(delta_H = H_press - H)
+
+ggplot(data = D)+
+  geom_line(mapping = aes(x = m2, y = delta_H), linewidth = 0.8, color = "darkgreen")+
+  scale_y_continuous(limits = c(0, 7)) +
+  scale_x_continuous(breaks = c(seq(0, 0.015, by = 0.003))) +
+  labs(title = expression(), x = expression(m[2]), y = expression(Delta~H))

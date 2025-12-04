@@ -349,7 +349,7 @@ D =
 
 ggplot(D, aes(x = m1, y = Abundance, color = Species)) +
   geom_line(mapping = aes(x = m1, y = Abundance, color = Species), lwd = 1) +
-  labs(title = "With hyperparasite", x = "Pathogen mortality", y = "Abundance", color = "Species")+
+  labs(x = "Per capita mortality rate of pathogen (m)", y = "Abundance", color = "Species")+
   geom_vline(xintercept = 0.03884541, color = "black", linetype = 2, linewidth = 1) +
   #breaks = c(seq(0.2, 1, by = 0.2))
   ylim(0,3)+
@@ -361,7 +361,7 @@ ggplot(D, aes(x = m1, y = Abundance, color = Species)) +
                                  "P.total" = "black")) +
   #scale_shape_manual(values = c("Stable" = 16, "Unstable" = 3)) + 
   theme(axis.title.y.right = element_text(angle = 90))
-ggsave("5min H.png.png", width = 15, height = 11, units = "cm", dpi = 800)
+ggsave("ESJ Hyperparasite.png", width = 20, height = 11, units = "cm", dpi = 800)
 
 
 ##To find the boundary of H invasion----
@@ -384,7 +384,7 @@ uniroot(Min.m, interval = c(0.01, 0.075), tol = 1e-16)$root
 
 
 ##Find dP*/dm to see the effectness of hydra effect----
-#For single strain model
+###For single strain model----
 parms = list(
   r = 1, K = 10,
   a1 = 0.5, psi1 = 1, e1 = 0.5, 
@@ -423,13 +423,13 @@ f_E_P1H = function(parms){
 
 ###Method 1
 E1H_P1 = expression((d*(o1+m1))/(b1*h1*o1 - c1*b1*(o1+m1)))
-E1H_dP1_dm = D(E1H_P1, "m1") #d/(b1 * h1 * o1 - c1 * b1 * (o1 + m1)) + (d * (o1 + m1)) * (c1 * b1)/(b1 * h1 * o1 - c1 * b1 * (o1 + m1))^2
+E1H_dP1_dm = D(E1H_P1, "m1") #Output -> d/(b1 * h1 * o1 - c1 * b1 * (o1 + m1)) + (d * (o1 + m1)) * (c1 * b1)/(b1 * h1 * o1 - c1 * b1 * (o1 + m1))^2
 with(parms,{
   eval(E1H_dP1_dm)
 })
 
 E1_P1 = expression((r/a1)*(1-(m1/(e1*a1)/K)))
-E1_dP1_dm = D(E1_P1, "m1") #-((r/a1) * (1/(e1 * a1)/K)) is always <0
+E1_dP1_dm = D(E1_P1, "m1") #Output -> -((r/a1) * (1/(e1 * a1)/K)) is always <0
 with(parms,{
   eval(E1_dP1_dm)
 })#This will always be -0.8, which means that there is no hydra effect at E1.
@@ -524,4 +524,65 @@ ggplot(D, aes(x = m1, y = Abundance, color = Species)) +
                                  "dP1_dm" = "black")) +
   #scale_shape_manual(values = c("Stable" = 16, "Unstable" = 3)) + 
   theme(axis.title.y.right = element_text(angle = 90))
+
+###For multiple strain model----
+library(numDeriv)
+parms <- list(r = 1, K = 10,
+              a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
+              b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.05, e1H = 0.5, e2H = 0.5,
+              o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
+
+f_E_C = function(parms){
+  with(parms, {
+    D1 = (m1+o1)
+    D2 = (m2+o2)
+    A = D1*b1*e2H*psi2*a2*b2 - D2*b2*e1H*psi1*a1*b1
+    B = D1*b1*e2*a2*D2 + m1*D1*e2H*psi2*a2*b2 - D2*b2*e1*a1*D1 - m2*D2*e1H*psi1*a1*b1
+    C = m1*e2*a2*D1*D2 - m2*e1*a1*D2*D1
+    E = B^2 - 4*A*C
+    if(E < 0 || is.na(E)){
+      H = NA
+    }else{
+      H1 = (-B + sqrt(B^2-4*A*C)) / (2*A)
+      H2 = (-B - sqrt(B^2-4*A*C)) / (2*A)
+      H_12 = c(H1,H2)
+      H_12 = H_12[H_12 > 0 & !is.na(H_12) & is.finite(H_12)]
+      if(length(H_12) == 0){
+        H = NA
+      } else {
+        H = min(H_12) #Choose the smallest one which is more biologically meaningful
+      }
+    }
+    A1 = (b1 * H) / (m1 + o1)
+    A2 = (b2 * H) / (m2 + o2)
+    B1 = h1 * o1 * A1 - c1 * b1 * H
+    B2 = h2 * o2 * A2 - c2 * b2 * H
+    D1 = (1 + psi1 * A1) * a1
+    D2 = (1 + psi2 * A2) * a2
+    S = ((b1 * H + m1) * (m1 + o1))/ (e1 * a1 * (m1 + o1) + e1H * psi1 * a1 * b1 * H)
+    #S2 = ((b2 * H + m2) * (m2 + o2))/ (e2 * a2 * (m2 + o2) + e2H * psi2 * a2 * b2 * H)
+    P1 = (d * H) / B1 - (B2 / B1) * (((B1 * r * (1 - S / K)) - D1 * d * H) / (D2 * B1 - D1 * B2))
+    P2 = (B1 * r * (1 - S / K) - D1 * d * H) / (D2 * B1 - D1 * B2)
+    P1H = A1 * P1
+    P2H = A2 * P2
+    
+    return(setNames(
+      c(H, P1H, P2H, P1, P2, S),
+      c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')
+    )) 
+  })
+}
+
+func_for_m1 = function(m1_value) {
+  local_parms = parms
+  local_parms$m1 = m1_value
+  return(f_E_C(local_parms))
+}
+deriv_results = jacobian(func = func_for_m1, x = 0.01)
+result_df = data.frame(
+  Variable = c('H', 'P1H', 'P2H', 'P1', 'P2', 'S'),
+  Value = as.numeric(f_E_C(parms)), 
+  Derivative_wrt_m1 = as.vector(deriv_results)
+)
+print(result_df)
 

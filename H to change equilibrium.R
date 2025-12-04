@@ -233,7 +233,7 @@ P.space$H_press = 0
 head(P.space)
 
 ### Model parameters
-times <- c(0, 10000)
+times <- c(0, 16000)
 state <- c(H = 0, P1H = 0, P2H = 0, P1 = 0, P2 = 0, S = 0)
 
 parms <- c(r = 1, K = 10,
@@ -249,7 +249,7 @@ f_outcome = function(state, parms){
                  times = times,
                  y = state,
                  parms = parms,
-                 maxsteps = 50000)
+                 maxsteps = 80000)
   Outcome =
     paste(ifelse(pop_size[nrow(pop_size), c("H", "P1H", "P2H", "P1", "P2")] > 1e-7, "T", "F"), collapse = "")
   return(Outcome)
@@ -270,6 +270,7 @@ Bisection_H = function(min_H, max_H, state, parms){
   
   if(min_E == max_E){
     print(paste0("The equilibrium of minimum H is equal to maximum H (", min_H, ")"))
+    return(NA)
   }
   
   loop_count = 0
@@ -311,3 +312,4 @@ for (i in 1:dim(P.space)[1]) {
 }
 Ending_time = Sys.time()
 Ending_time - Start_time
+saveRDS(P.space, file = "H to change the equilibirum from Pre4A1 bisec 2")

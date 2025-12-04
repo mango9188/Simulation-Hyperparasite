@@ -23,7 +23,7 @@ parms <- c(r = 1, K = 10,
            b1 = 0.2, m1 = 0.8, e1H = 0.5,
            o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.03, DL = 0)
 
-comp_out = expand.grid(m1 = seq(0, 1, by = 0.1))
+comp_out = expand.grid(m1 = seq(0, 2, by = 0.1))
 
 #### Create saving space for simulation output----
 #combine different parameters and different state variables together
@@ -63,14 +63,14 @@ comp_out %>%
   pivot_longer(names_to = "Species", values_to = "Abundance", -c(m1)) %>%
   ggplot(aes(x = m1, y = Abundance, color = Species)) +
   geom_line(lwd = 1) + 
-  labs(title = "With predator", x = "Pathogen mortality", y = "Abundance", color = "Species")+
+  labs(x = "Per capita mortality rate of pathogen (m)", y = "Abundance", color = "Species")+
   scale_colour_manual(labels = 
                         c("P1" = "Pathogen", "P1H" = expression(P[1/H]),
                           "S" = "Host", "H" = "Predator", "Total" = "Total"),
                       values = c("P1" = "#BCAAA4", "P1H" = "#82491E",
                                  "S" = "#00AF66", "H" = "#C03728", "Total" = "blue"))
 
-
-ggsave("5min predator.png", width = 15, height = 11, units = "cm", dpi = 800)
+#title = "With predator"
+ggsave("ESJ predator.png", width = 20, height = 11, units = "cm", dpi = 800)
 ##Save the simulation result
 #saveRDS(comp_out, "SS2")
