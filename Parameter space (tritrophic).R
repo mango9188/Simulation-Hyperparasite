@@ -63,13 +63,13 @@ comp_out %>%
   pivot_longer(names_to = "Species", values_to = "Abundance", -c(m1)) %>%
   ggplot(aes(x = m1, y = Abundance, color = Species)) +
   geom_line(lwd = 1) + 
-  labs(x = "Per capita mortality rate of pathogen (m)", y = "Abundance", color = "Species")+
-  scale_colour_manual(labels = 
+  labs(x = "Intrinsic mortality rate of pathogen (m)", y = "Abundance", color = "Species")+
+  scale_colour_manual(labels =
                         c("P1" = "Pathogen", "P1H" = expression(P[1/H]),
                           "S" = "Host", "H" = "Predator", "Total" = "Total"),
                       values = c("P1" = "#BCAAA4", "P1H" = "#82491E",
-                                 "S" = "#00AF66", "H" = "#C03728", "Total" = "blue"))
-
+                                 "S" = "#00AF66", "H" = "#C03728", "Total" = "blue"))+
+  theme(legend.position = "bottom")
 #title = "With predator"
 ggsave("ESJ predator.png", width = 20, height = 11, units = "cm", dpi = 800)
 ##Save the simulation result

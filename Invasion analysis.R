@@ -101,9 +101,6 @@ with(parms,{
 
 
 
-
-
-
 #For P_i and P_{i/H} to invade E_{S P_j P_j/H}----
 ## Leslie matrix for Pi and Pi/H's invasion growth rate----
 parms = list(r = 1, K = 10,

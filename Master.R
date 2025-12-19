@@ -349,18 +349,19 @@ D =
 
 ggplot(D, aes(x = m1, y = Abundance, color = Species)) +
   geom_line(mapping = aes(x = m1, y = Abundance, color = Species), lwd = 1) +
-  labs(x = "Per capita mortality rate of pathogen (m)", y = "Abundance", color = "Species")+
+  labs(x = "Intrinsic mortality rate of pathogen (m)", y = "Abundance", color = "Species")+
   geom_vline(xintercept = 0.03884541, color = "black", linetype = 2, linewidth = 1) +
   #breaks = c(seq(0.2, 1, by = 0.2))
   ylim(0,3)+
   scale_colour_manual(labels = 
-                        c("P1" = "Pathogen", "P1H" = "Pathogen/Hy",
-                          "S" = "Host", "H" = "Hyperparasite"),
+                        c("P1" = "Pathogen", "P1H" = "Hyperparasited Pathogen",
+                          "S" = "Host", "H" = "Hyperparasite", "P.total" = "Total Pathogen"),
                       values = c("P1" = "#BCAAA4", "P1H" = "#82491E",
                                  "S" = "#00AF66", "H" = "#C03728",
                                  "P.total" = "black")) +
   #scale_shape_manual(values = c("Stable" = 16, "Unstable" = 3)) + 
-  theme(axis.title.y.right = element_text(angle = 90))
+  theme(axis.title.y.right = element_text(angle = 90),
+        legend.position = "bottom")
 ggsave("ESJ Hyperparasite.png", width = 20, height = 11, units = "cm", dpi = 800)
 
 
@@ -586,3 +587,30 @@ result_df = data.frame(
 )
 print(result_df)
 
+func_for_m2 = function(m2_value) {
+  local_parms = parms
+  local_parms$m2 = m2_value
+  return(f_E_C(local_parms))
+}
+deriv_results = jacobian(func = func_for_m2, x = 0.01)
+
+result_df = data.frame(
+  Variable = c('H', 'P1H', 'P2H', 'P1', 'P2', 'S'),
+  Value = as.numeric(f_E_C(parms)), 
+  Derivative_wrt_m2 = as.vector(deriv_results)
+)
+print(result_df)
+
+
+Data = expand.grid(m2 = seq(0, 1, by = 0.01))
+Data = data.frame(Data,
+                  Value = 0,
+                  Derivative_wrt_m2 = 0)
+for (i in dim(Data)[1]) {
+  deriv_results = jacobian(func = func_for_m2, x = 0.01)
+  
+    Variable = c('H', 'P1H', 'P2H', 'P1', 'P2', 'S'),
+    Value = as.numeric(f_E_C(parms)), 
+    Derivative_wrt_m2 = as.vector(deriv_results)
+  )
+}

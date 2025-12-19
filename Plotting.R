@@ -152,14 +152,15 @@ ggplot(comp_out, aes(x = a1, y = r, z = Outcome, fill = Outcome2)) +
         axis.title.y = element_text(size = 15))
 
 ############Plot the heatmap for m------------
+heatmap = 
 ggplot(filter(comp_out), aes(x = m1, y = m2, z = Stable_E, fill = Stable_E)) +
   geom_raster() +
   #geom_point(filter(comp_out, Stability == "ASS"), mapping = aes(x = m1, y = m2, shape = Stability), color = "black", alpha = 0.2)+
   #geom_point(mapping = aes(x = m1, y = m2), color = "black", alpha = 0.1)+
   labs(title = expression(), x = expression(m[1]), y = expression(m[2]))+
-  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.01)) +
-  scale_y_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.01)) +
-  scale_fill_manual(values = final_colors, labels = outcome_labels) +
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.02)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.02)) +
+  scale_fill_manual("Equilibirum", values = final_colors, labels = outcome_labels) +
   #scale_fill_manual(values = as.character(paletteer_d("ggsci::default_igv")))+#automatically choose color
   #scale_fill_manual(values = setNames(paletteer_d("ggsci::default_igv")[1:length(all_comb)], all_comb))+
   theme(panel.grid = element_blank(),
@@ -189,8 +190,39 @@ ggplot(comp_out, aes(x = factor(m1), y = m2, z = Outcome, fill = Outcome2)) +
         axis.text.y = element_text(size = 10),
         axis.title.x = element_text(size = 15),
         axis.title.y = element_text(size = 15))
+ggplot(filter(comp_out), aes(x = m1, y = m2, z = Stable_E, fill = Stable_E)) +
+  geom_raster() +
+  #geom_point(filter(comp_out, Stability == "ASS"), mapping = aes(x = m1, y = m2, shape = Stability), color = "black", alpha = 0.2)+
+  #geom_point(mapping = aes(x = m1, y = m2), color = "black", alpha = 0.1)+
+  labs(title = expression(), x = expression(m[1]), y = expression(m[2]))+
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.01)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.01)) +
+  scale_fill_manual(values = final_colors, labels = outcome_labels) +
+  #scale_fill_manual(values = as.character(paletteer_d("ggsci::default_igv")))+#automatically choose color
+  #scale_fill_manual(values = setNames(paletteer_d("ggsci::default_igv")[1:length(all_comb)], all_comb))+
+  theme(panel.grid = element_blank(),
+        plot.title = element_text(hjust = 0.5, size = 20),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15))+
+  coord_fixed(ratio = 1)
 
+ggsave("Heatmap of m1 and m2.png", width = 16, height = 11, units = "cm", dpi = 1600)
 
+############Plot the heatmap for m (fill with S value)-----------------
+ggplot(comp_out, aes(x = m1, y = m2, fill = S)) +
+  geom_tile() +
+  labs(title = expression(), x = expression(m[1]), y = expression(m[2]))+
+  scale_fill_gradient(low = "#bc8f8f", high = "#013320") +
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.01)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.01)) +
+  theme(panel.grid = element_blank(),
+        plot.title = element_text(hjust = 0.5, size = 20),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15))
 
 ############Plot the heatmap for m + IGR------------
 ggplot(filter(comp_out)) +

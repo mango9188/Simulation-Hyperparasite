@@ -10,6 +10,7 @@ Model <- function(times, state, parms) {
     return(list(c(dH_dt, dP1_dt, dS_dt)))
   })
 }
+
 ### Type-II functional response
 Model <- function(times, state, parms) {
   with(as.list(c(state, parms)), {
@@ -74,3 +75,13 @@ for (j in colnames(pop_size)[2:4]) { #run a loop that can input each species
   k = k + 1 #increase k so that we can put the value of next species into the vector
 }
 avg
+
+#Analytic Sol:
+
+with(as.list(parms), {
+  H = (e1*a1*K*(1-(a1*d)/(h1*o1*r))-m1)/o1
+  P = d/(h1*o1)
+  S = K*(1-(a1*d)/(h1*o1*r))
+  return(c(H = H, P = P, S = S))
+})
+ 
