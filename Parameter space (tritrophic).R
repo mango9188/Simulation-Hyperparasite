@@ -68,8 +68,7 @@ comp_out %>%
                         c("P1" = "Pathogen", "P1H" = expression(P[1/H]),
                           "S" = "Host", "H" = "Predator", "Total" = "Total"),
                       values = c("P1" = "#BCAAA4", "P1H" = "#82491E",
-                                 "S" = "#00AF66", "H" = "#C03728", "Total" = "blue"))+
-  theme(legend.position = "bottom")
+                                 "S" = "#00AF66", "H" = "#C03728", "Total" = "blue"))
 #title = "With predator"
 ggsave("ESJ predator.png", width = 20, height = 11, units = "cm", dpi = 800)
 ##Save the simulation result

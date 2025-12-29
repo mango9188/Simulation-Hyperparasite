@@ -19,16 +19,17 @@ M2 <- function(times, state, parms) {
 # })
 
 ### Model parameters ----
-times <- seq(0, 5000, by = 0.1)
+times <- seq(0, 20000, by = 0.1)
 #state <- c(H = 0.7258128, P1H = 0.3909225, P2H = 0, P1 = 2.2271095, P2 = 60, S = 0.8368879)
-state <- c(H = 0.5, P1H = 0, P2H = 0, P1 = 0.01, P2 = 0.01, S = 0.5) #ini_1 (P1win)
-state <- c(H = 0.01, P1H = 0, P2H = 0, P1 = 0.01, P2 = 0.01, S = 0.5) #ini_2 (P2win)
+#state <- c(H = 0.5, P1H = 0, P2H = 0, P1 = 0.01, P2 = 0.01, S = 0.5) #ini_1 (P1win)
+#state <- c(H = 0.01, P1H = 0, P2H = 0, P1 = 0.01, P2 = 0.01, S = 0.5) #ini_2 (P2win)
+state <- c(H = 0.01, P1H = 0, P2H = 0, P1 = 0.01, P2 = 0.01, S = 0.1)
 
 #Change alpha and beta--
 parms <- c(epsilon = 1,
            r = 1, K = 10,
            a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
-           b1 = 0.2, b2 = 0.45, m1 = 0.045, m2 = 0.001, e1H = 0.5, e2H = 0.5,
+           b1 = 0.2, b2 = 0.45, m1 = 0.04, m2 = 0.04, e1H = 0.5, e2H = 0.5,
            o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0) #h
 
 ### Model application ----
@@ -56,7 +57,7 @@ pop_size %>%
                         theme(legend.position = "bottom", 
                               legend.box = "horizontal")
 
-ggsave("ESJ ini_2 ECorE2H P2wins.png", width = 20, height = 11.25, units = "cm", dpi = 800)
+#ggsave("ESJ ini_2 ECorE2H P2wins.png", width = 20, height = 11.25, units = "cm", dpi = 800)
 View(pop_size)
 sd(pop_size[(nrow(pop_size)-round(length(times)*0.35)):nrow(pop_size),"S"]) > 1e-8
 

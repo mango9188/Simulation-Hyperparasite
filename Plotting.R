@@ -214,7 +214,7 @@ ggsave("Heatmap of m1 and m2.png", width = 16, height = 11, units = "cm", dpi = 
 ggplot(comp_out, aes(x = m1, y = m2, fill = S)) +
   geom_tile() +
   labs(title = expression(), x = expression(m[1]), y = expression(m[2]))+
-  scale_fill_gradient(low = "#bc8f8f", high = "#013320") +
+  scale_fill_gradient(low = "white", high = "#013320") +
   scale_x_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.01)) +
   scale_y_continuous(expand = c(0, 0), breaks = seq(0, 0.1, by = 0.01)) +
   theme(panel.grid = element_blank(),
