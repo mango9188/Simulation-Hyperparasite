@@ -3,7 +3,7 @@ library(deSolve)
 library(tidyverse)
 library(patchwork)
 
-times <- seq(0, 5000, by = 0.1)
+times <- seq(0, 2500, by = 0.1)
 
 #state----
 ini_High_H <- c(H = 0.5, P1H = 0, P2H = 0, P1 = 0.01, P2 = 0.01, S = 0.5) #ini_1 (P1win)
@@ -37,18 +37,18 @@ TimeSeries = function(times, state, parms){
     })
   }
   pop_size = ode(func = M2, times = times, y = state, parms = parms)
-  pop_size %>%
-    as.data.frame() %>%
-    filter(time %% 1 == 0) %>%
-    pivot_longer(cols = c("H", "P1H", "P2H", "P1", "P2", "S"),
-                 names_to = "species", values_to = "biomass") %>%
-    ggplot(mapping = aes(x = time, y = biomass, color = species)) +
-    labs(x = "Time", y = "Abundance") +
-    geom_line(lwd = 1) +
-    scale_y_continuous(limits = c(0, 8))+
-    scale_colour_manual(labels = c("H" = "H", "P1" = expression(P[1]), "P1H" = expression(P[1/H]), "P2" = expression(P[2]), "P2H" = expression(P[2/H]), "S" = "S"),
-                        values = c("H" = "#C03728", "P1" = "#BCAAA4", "P1H" = "#82491E",
-                                   "P2" = "#B0BEC5", "P2H" = "#546E7A", "S" = "#00AF66"))
+   pop_size %>%
+     as.data.frame() #%>%
+  #   filter(time %% 1 == 0) %>%
+  #   pivot_longer(cols = c("H", "P1H", "P2H", "P1", "P2", "S"),
+  #                names_to = "species", values_to = "biomass") %>%
+  #   ggplot(mapping = aes(x = time, y = biomass, color = species)) +
+  #   labs(x = "Time", y = "Abundance") +
+  #   geom_line(lwd = 1) +
+  #   scale_y_continuous(limits = c(0, 8))+
+  #   scale_colour_manual(labels = c("H" = "H", "P1" = expression(P[1]), "P1H" = expression(P[1/H]), "P2" = expression(P[2]), "P2H" = expression(P[2/H]), "S" = "S"),
+  #                       values = c("H" = "#C03728", "P1" = "#BCAAA4", "P1H" = "#82491E",
+  #                                  "P2" = "#B0BEC5", "P2H" = "#546E7A", "S" = "#00AF66"))
 }
 
 
@@ -89,9 +89,14 @@ D %>%
   labs(x = "Time", y = "Abundance")+
   scale_y_continuous(limits = c(0, 8))+
   scale_colour_manual("Species", labels = c("H" = "H", "P1" = expression(P[1]), "P1H" = expression(P[1/H]), "P2" = expression(P[2]), "P2H" = expression(P[2/H]), "S" = "S"),
-                      values = c("H" = "#C03728", "P1" = "#BCAAA4", "P1H" = "#82491E",
-                                 "P2" = "#B0BEC5", "P2H" = "#546E7A", "S" = "#00AF66"))+
-  facet_grid(ini ~ fct_rev(m1))
+                      values = c("P1" = "#BCAAA4", "P1H" = "#82491E", "P1T" = "#BCAAA4",
+                                 "P2" = "#B0BEC5", "P2H" = "#546E7A", "P2T" = "#B0BEC5",
+                                 "S" = "#00AF66", "H" = "#C03728",
+                                 "total" = "black"))+
+  facet_grid(ini ~ fct_rev(m1))+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size = 12))
+  
 
 heatmap = heatmap + labs(tag = "(A)") + theme(plot.tag.position = c(0.05, 0.99))
 
@@ -105,3 +110,17 @@ heatmap + plot_spacer() + TimePlot +
 heatmap + plot_spacer() + TimePlot + plot_layout(widths = c(5, 1, 10))
 
 ggsave("ESJ Heatmap and ASS time series.png", width = 30, height = 11.25, units = "cm", dpi = 800)
+
+
+A = 
+  theme_bw()+
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 18),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 15),
+    axis.title.y = element_text(size = 15),
+    axis.title.y.right = element_text(size = 10),
+    legend.text = element_text(size = 10),
+    legend.text.align = 0)
+theme_set(A)

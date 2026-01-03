@@ -23,7 +23,7 @@ parms <- c(r = 1, K = 10,
            b1 = 0.2, m1 = 0.8, e1H = 0.5,
            o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.03, DL = 0)
 
-comp_out = expand.grid(m1 = seq(0, 2, by = 0.1))
+comp_out = expand.grid(m1 = seq(0, 1, by = 0.1))
 
 #### Create saving space for simulation output----
 #combine different parameters and different state variables together

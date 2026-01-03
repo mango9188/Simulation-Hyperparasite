@@ -33,7 +33,7 @@ Model <- function(times, state, parms) {
 
 ### Model parameters ----
 
-times <- seq(0, 5000, by = 0.05)
+times <- seq(0, 1000, by = 0.05)
 #state <- c(H = 1, P1H = 0, P1 = 2, S = 5)
 state <- c(H = 0.01, P1 = 0.01, S = 0.2)
 #Change alpha and beta--
