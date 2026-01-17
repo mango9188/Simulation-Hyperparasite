@@ -152,7 +152,7 @@ ggplot(comp_out, aes(x = a1, y = r, z = Outcome, fill = Outcome2)) +
         axis.title.y = element_text(size = 15))
 
 ############Plot the heatmap for m------------
-heatmap = 
+#heatmap = 
 ggplot(filter(comp_out), aes(x = m1, y = m2, z = Stable_E, fill = Stable_E)) +
   geom_raster() +
   #geom_point(filter(comp_out, Stability == "ASS"), mapping = aes(x = m1, y = m2, shape = Stability), color = "black", alpha = 0.2)+

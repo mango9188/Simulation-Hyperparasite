@@ -40,30 +40,71 @@ unique_outcomes = unique(comp_out$Stable_E)
 #   "U"        = "#BDBDBD"
 # )
 # 
-# mycolor <- c(
-#   "C"        = "grey50",
-#   "C,P1H"    = "#B38B2D",
-#   "C,P2H"    = "#2F5F8F",
-#   "P1H"      = "#654321", #dark brown
-#   "P1"       = "#895129", #brown
-#   "P2H"      = "lightblue",
-#   "P2"       = "blue",
-#   "S"        = "darkgreen",
-#   "U"        = "pink"
-# )
 mycolor <- c(
-  "C" = "#4F4F4F",
-  "U" = "#C7C7C7",
-  "S" = "#00AF66",
-  "P1" = "#BCAAA4",
-  "P1H" = "#82491E",
-  "P2" = "#B0BEC5",
-  "P2H" = "#546E7A",
-  "P1,P2" = "#B7AEA0",
-  "P1H,P2H" = "#6A1B9A",
-  "C,P1H" = "pink",
-  "C,P2H" = "#C2185B")
+  "C"        = "grey50",
+  "C,P1H"    = "#B38B2D",
+  "C,P2H"    = "#2F5F8F",
+  "P1H"      = "#654321", #dark brown
+  "P1"       = "#895129", #brown
+  "P2H"      = "#9ED8F9",
+  "P2"       = "#36B8FA",
+  "S"        = "darkgreen",
+  "U"        = "pink"
+)
+# mycolor <- c(
+#   "C" = "#C73824", #red
+#   "U" = "#C7C7C7", #This will be replaced by other grids
+#   "S" = "#65AD62", #Green
+#   "P1" = "#663300",
+#   "P1H" = "#A37649",
+#   "P2"  = "#5D278F",
+#   "P2H" = "#8E6FCC",
+#   "P1H,P2H" = "#8E0703", #dark red
+#   "C,P1H" = "#D6824E", #orange
+#   "C,P2H" = "#D66883" #pink
+#   )
 
+# mycolor <- c(
+#   "C" = "#4F4F4F",
+#   "U" = "#C7C7C7",
+#   "S" = "#00AF66",
+#   "P1" = "#BCAAA4",
+#   "P1H" = "#82491E",
+#   "P2" = "#B0BEC5",
+#   "P2H" = "#546E7A",
+#   "P1,P2" = "#B7AEA0",
+#   "P1H,P2H" = "#6A1B9A",
+#   "C,P1H" = "pink",
+#   "C,P2H" = "#C2185B")
+
+# mycolor <- c(
+#   "C" = "#5D4D5C",
+#   "U" = "#C7C7C7",
+#   "S" = "#00AF66",
+#   "P1" = "#F99BAF",
+#   "P1H" = "#c60c37",
+#   "P2" = "#68E1E1",
+#   "P2H" = "#0074AE",
+#   "P1,P2" = "#B7AEA0",
+#   "P1H,P2H" = "#6A1B9A",
+#   "C,P1H" = "pink",
+#   "C,P2H" = "#C155B8")
+
+mycolor <- c(
+  "C" = "#BB7DBE", #BB7DBE #C155B8
+  "U" = "#5D4D5C",
+  "S" = "#00AF66",
+  "P1" = alpha("#a50f15", 0.4),
+  "P1H" = "#a50f15",
+  "P2" = "#9ecae1",
+  "P2H" = "#2171b5",
+  "P1,P2" = "#B7AEA0",
+  "P1H,P2H" = "#929292",
+  "C,P1H" = "pink",
+  "C,P2H" = "#525252")
+
+"#D6B701" #H
+"#00AF66" #S
 
 unspecified_outcomes <- setdiff(unique_outcomes, names(mycolor))
 extra_colors <- paletteer_d("ggsci::default_igv")[1:length(unspecified_outcomes)]
@@ -71,14 +112,14 @@ final_colors <- c(mycolor, setNames(extra_colors, unspecified_outcomes))
 
 outcome_labels <- c(
   "C" = expression(E[C]),
-  "C,P1H" = expression(E[C] ~"or"~ E[P1H]),
-  "C,P2H" = expression(E[C] ~"or"~ E[P2H]),
-  "P1H,P2H" = expression(E[P1H] ~"or"~ E[P2H]),
-  "P1,P2" = expression(E[P1] ~"or"~ E[P2]),
-  "P1H" = expression(E[P1H]),
+  "C,P1H" = expression(E[C] ~"or"~ E[P[1]*H]),
+  "C,P2H" = expression(E[C] ~"or"~ E[P[2]*H]),
+  "P1H,P2H" = expression(E[P[1]*H] ~"or"~ E[P[2]*H]),
+  "P1,P2" = expression(E[P[1]] ~"or"~ E[P[2]]),
+  "P1H" = expression(E[P[1]*H]),
   "P1" = expression(E[P1]),
-  "P2H" = expression(E[P2H]),
-  "P2" = expression(E[P2]),
+  "P2H" = expression(E[P[2]*H]),
+  "P2" = expression(E[P[2]]),
   "S" = expression(E[S]),
   "U" = "Unstable"
 )

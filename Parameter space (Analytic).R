@@ -269,5 +269,5 @@ comp_out$Outcome2 = apply(comp_out[, c("H", "P1H", "P2H", "P1", "P2")], 1, funct
 })
 comp_out[which(comp_out$Stable_E == ""), "Stable_E"] = "U"
 
-#saveRDS(comp_out, "Pre4A1_d03")
+#saveRDS(comp_out, "Pre4A1_d028")
 View(comp_out)

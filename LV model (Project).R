@@ -1,4 +1,5 @@
 ####LV model for project
+# Showing how the initial value alters the final fate of the competition.
 library(deSolve)
 library(tidyverse)
 library(patchwork)
