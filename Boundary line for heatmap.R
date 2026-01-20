@@ -8,6 +8,12 @@ parms = list(
   a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
   b1 = 0.2, b2 = 0.45, e1H = 0.5, e2H = 0.5,
   o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.028, DL = 0)
+
+parms <- list(r = 1, K = 10,
+              a1 = 0.38, a2 = 0.51, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
+              b1 = 0.2, b2 = 0.42, m1 = 0.05, m2 = 0.05, e1H = 0.5, e2H = 0.5,
+              o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.02, DL = 0)
+
 #When calculating IGR1 and 2, H must persist.
 f_IGR1 = function(m1, m2){
   Leslie <- matrix(

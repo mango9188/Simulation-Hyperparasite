@@ -221,7 +221,7 @@ parms = list(
   r = 1, K = 10, a1 = 0.35, e1 = 0.5, m1 = 0.05)
 
 #Create data frame to expand m1
-comp_out = expand.grid(m1 = seq(0.01, 0.1, by = 0.01))
+comp_out = expand.grid(m1 = seq(0.01, 0.7, by = 0.1))
 comp_out = as.data.frame(cbind(comp_out,
                                 matrix(0, 
                                        nrow = dim(comp_out)[1],
@@ -291,7 +291,7 @@ parms = list(
   o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.03, DL = 0) #c1 = 0.9
 
 ##Create data frame to expand m1----
-comp_out = expand.grid(m1 = seq(0.001, 0.1, by = 0.001))
+comp_out = expand.grid(m1 = seq(0.001, 0.7, by = 0.1))
 comp_out = as.data.frame(cbind(comp_out,
                                matrix(0, 
                                       nrow = dim(comp_out)[1],

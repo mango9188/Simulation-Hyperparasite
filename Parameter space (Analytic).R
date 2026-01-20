@@ -6,6 +6,11 @@ parms <- list(r = 1, K = 10,
               b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.05, e1H = 0.5, e2H = 0.5,
               o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.028, DL = 0) #d = 0.03
 
+parms <- list(r = 1, K = 10,
+              a1 = 0.38, a2 = 0.51, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
+              b1 = 0.2, b2 = 0.42, m1 = 0.05, m2 = 0.05, e1H = 0.5, e2H = 0.5,
+              o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.02, DL = 0) #biggest alternative stable states
+
 comp_out = expand.grid(m1 = seq(0.001, 0.1, by = 0.001), 
                        m2 = seq(0.001, 0.1, by = 0.001))
 

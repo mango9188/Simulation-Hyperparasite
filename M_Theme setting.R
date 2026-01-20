@@ -117,7 +117,7 @@ outcome_labels <- c(
   "P1H,P2H" = expression(E[P[1]*H] ~"or"~ E[P[2]*H]),
   "P1,P2" = expression(E[P[1]] ~"or"~ E[P[2]]),
   "P1H" = expression(E[P[1]*H]),
-  "P1" = expression(E[P1]),
+  "P1" = expression(E[P[1]]),
   "P2H" = expression(E[P[2]*H]),
   "P2" = expression(E[P[2]]),
   "S" = expression(E[S]),

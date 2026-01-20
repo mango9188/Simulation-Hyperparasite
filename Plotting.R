@@ -4,7 +4,8 @@ library(paletteer)
 source("M_Theme setting.R", encoding = 'CP950', echo = T)
 source("Boundary line for heatmap.R", encoding = 'CP950', echo = T)
 ##Read the simulation result
-
+comp_out = readRDS("Pre4A1_d028")
+# comp_out[comp_out$Stable_E == "U", ]$Stable_E = "P1"
 comp_out = readRDS("Pre6A1")
 comp_out = 
   readRDS("Pre4A1") %>%
@@ -47,10 +48,10 @@ outcome_labels <- c(
   "TFTTT" = expression(P[1/H] ~ "excluded"),
   "TTFTT" = expression(P[2/H] ~ "excluded"),
   "FFFTT" = expression(P[1] + P[2]),
-  "TTFTF" = expression(E[1~H]),
-  "FFFTF" = expression(E[1]),
-  "TFTFT" = expression(E[2~H]),
-  "FFFFT" = expression(E[2]),
+  "TTFTF" = expression(E[P[1]*H]),
+  "FFFTF" = expression(E[P[1]]),
+  "TFTFT" = expression(E[P[2]*H]),
+  "FFFFT" = expression(E[P[2]]),
   "FFFFF" = "Unstable"
 )
 
@@ -171,7 +172,7 @@ ggplot(filter(comp_out), aes(x = m1, y = m2, z = Stable_E, fill = Stable_E)) +
         axis.title.y = element_text(size = 15))+
   coord_fixed(ratio = 1)
 
-ggsave("Heatmap of m1 and m2.png", width = 16, height = 11, units = "cm", dpi = 1600)
+ggsave("Heatmap of m1 and m2 d = 0.028.png", width = 16, height = 11, units = "cm", dpi = 1600)
 
 
 ggplot(comp_out, aes(x = factor(m1), y = m2, z = Outcome, fill = Outcome2)) +
@@ -506,6 +507,7 @@ D =
   comp_out %>%
   filter(m1 == 0.05)
 
+####Read the old Theme setting instead of source!
 ggplot(data = D)+
   geom_tile(mapping = aes(x = m2, y = delta_H, fill = Outcome))+
   labs(title = expression(), x = expression(m[2]), y = expression(Delta~H))+
@@ -532,3 +534,4 @@ ggplot(data = D)+
   scale_y_continuous(limits = c(0, 7)) +
   scale_x_continuous(breaks = c(seq(0, 0.015, by = 0.003))) +
   labs(title = expression(), x = expression(m[2]), y = expression(Delta~H))
+
