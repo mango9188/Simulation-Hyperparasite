@@ -212,7 +212,7 @@ ggplot(filter(comp_out), aes(x = m1, y = m2, z = Stable_E, fill = Stable_E)) +
 ggsave("Heatmap of m1 and m2.png", width = 16, height = 11, units = "cm", dpi = 1600)
 
 ############Plot the heatmap for m (fill with S value)-----------------
-ggplot(comp_out, aes(x = m1, y = m2, fill = S)) +
+ggplot(comp_out, aes(x = m1, y = m2, fill = P1+P1H+P2+P2H)) +
   geom_tile() +
   labs(title = expression(), x = expression(m[1]), y = expression(m[2]))+
   scale_fill_gradient(low = "white", high = "#013320") +

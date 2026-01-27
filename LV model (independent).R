@@ -50,11 +50,7 @@ pop_size %>%
   geom_line(lwd = 1) +
   #geom_hline(yintercept = 0.05683562, color = "black", linetype = "dashed", linewidth = 1) +
   scale_y_continuous(limits = c(0, 8))+
-  scale_colour_manual("Species", labels = c("H" = "H", "P1" = expression(P[1]), "P1H" = expression(P[1/H]), "P2" = expression(P[2]), "P2H" = expression(P[2/H]), "S" = "S"),
-                      # values = c("H" = "#C03728", "P1" = "#D7C6B4", "P1H" = "#895737",
-                      #            "P2" = "lightblue", "P2H" = "blue", "S" = "darkgreen"))+
-                       values = c("H" = "#D6B701", "P1" = "#BCAAA4", "P1H" = "#82491E",
-                                  "P2" = "#B0BEC5", "P2H" = "#546E7A", "S" = "#00AF66"))+
+  scale_colour_manual(values = State_values, labels = State_labels)+
                         guides(color = guide_legend(nrow = 1)) +
                         theme(legend.position = "bottom", 
                               legend.box = "horizontal")

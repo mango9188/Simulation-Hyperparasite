@@ -1,9 +1,9 @@
-####This script is for master thesis.
-#Read the package and plot setting
+#### This script is for master thesis.
+# Read the package and plot setting
 library(tidyverse)
 source("M_Theme setting.R", encoding = 'CP950', echo = T)
 
-#Function setting----
+# Function setting----
 {
 Jacobian_full = function(parms, E) {
   with(c(parms, E), {
@@ -216,7 +216,7 @@ f_E_P2H = function(parms){
 }
 }
 
-#Single strain model with no H (i.e., S and P1)----
+# Single strain model with no H (i.e., S and P1)----
 parms = list(
   r = 1, K = 10, a1 = 0.35, e1 = 0.5, m1 = 0.05)
 
@@ -283,15 +283,15 @@ ggplot(D, aes(x = m1, y = Abundance, color = Species)) +
 
 ggsave("5min No natural enemies.png", width = 15, height = 11, units = "cm", dpi = 800, bg = "transparent")
 
-#Single strain model with H (i.e., S, P1, P1H, and H)----
+# Single strain model with H (i.e., S, P1, P1H, and H)----
 parms = list(
   r = 1, K = 10,
-  a1 = 0.35, psi1 = 1, e1 = 0.5, 
+  a1 = 0.38, psi1 = 0.8, e1 = 0.5, 
   b1 = 0.2, m1 = 0.05, e1H = 0.5, 
-  o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.03, DL = 0) #c1 = 0.9
+  o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.028, DL = 0) #c1 = 0.9
 
-##Create data frame to expand m1----
-comp_out = expand.grid(m1 = seq(0.001, 0.7, by = 0.1))
+## Create data frame to expand m1----
+comp_out = expand.grid(m1 = seq(0.001, 0.3, by = 0.001))
 comp_out = as.data.frame(cbind(comp_out,
                                matrix(0, 
                                       nrow = dim(comp_out)[1],
@@ -340,7 +340,7 @@ for (i in 1:dim(comp_out)[1]) {
 ###It is possible that data contains NA because m1 can be large enough that P1 would no longer persist H.
 comp_out = mutate(comp_out, P.total = P1+P1H)
 
-##Bifurcation plot for S and P1H----
+## Bifurcation plot for S and P1H----
 D = 
   comp_out %>%
   select(c(m1, P1, P1H, H, S, P.total)) %>% #P1, P2, P1H, P2H, H, S
@@ -350,22 +350,18 @@ D =
 ggplot(D, aes(x = m1, y = Abundance, color = Species)) +
   geom_line(mapping = aes(x = m1, y = Abundance, color = Species), lwd = 1) +
   labs(x = "Intrinsic mortality rate of pathogen (m)", y = "Abundance", color = "Species")+
-  geom_vline(xintercept = 0.03884541, color = "black", linetype = 2, linewidth = 1) +
+  #geom_vline(xintercept = 0.03884541, color = "black", linetype = 2, linewidth = 1) +
+  #geom_vline(xintercept = 0.291, color = "darkgreen", linetype = 2, linewidth = 1)+
   #breaks = c(seq(0.2, 1, by = 0.2))
-  ylim(0,3)+
-  scale_colour_manual(labels = 
-                        c("P1" = "Pathogen", "P1H" = "Hyperparasited Pathogen",
-                          "S" = "Host", "H" = "Hyperparasite", "P.total" = "Total Pathogen"),
-                      values = c("P1" = "#BCAAA4", "P1H" = "#82491E",
-                                 "S" = "#00AF66", "H" = "#C03728",
-                                 "P.total" = "black")) +
+  #ylim(0,3)+
+  scale_colour_manual(values = State_values, labels = State_labels) +
   #scale_shape_manual(values = c("Stable" = 16, "Unstable" = 3)) + 
   theme(axis.title.y.right = element_text(angle = 90),
         legend.position = "bottom")
-ggsave("ESJ Hyperparasite.png", width = 20, height = 11, units = "cm", dpi = 800)
+ggsave("Hyperparasite minimum pesticide.png", width = 20, height = 11, units = "cm", dpi = 800)
 
 
-##To find the boundary of H invasion----
+## To find the boundary of H invasion----
 parms = list(
   r = 1, K = 10,
   a1 = 0.5, psi1 = 1, e1 = 0.5, 
@@ -384,8 +380,8 @@ uniroot(Min.m, interval = c(0.01, 0.075), tol = 1e-16)$root
 
 
 
-##Find dP*/dm to see the effectness of hydra effect----
-###For single strain model----
+## Find dP*/dm to see the effectness of hydra effect----
+### For single strain model----
 parms = list(
   r = 1, K = 10,
   a1 = 0.5, psi1 = 1, e1 = 0.5, 
@@ -526,7 +522,7 @@ ggplot(D, aes(x = m1, y = Abundance, color = Species)) +
   #scale_shape_manual(values = c("Stable" = 16, "Unstable" = 3)) + 
   theme(axis.title.y.right = element_text(angle = 90))
 
-###For multiple strain model----
+### For multiple strain model----
 library(numDeriv)
 parms <- list(r = 1, K = 10,
               a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
@@ -614,3 +610,79 @@ for (i in dim(Data)[1]) {
     Derivative_wrt_m2 = as.vector(deriv_results)
   )
 }
+
+## Check how parameters affect pathogen resurgence----
+parms = list(
+  r = 1, K = 10,
+  a1 = 0.38, psi1 = 0.8, e1 = 0.5, 
+  b1 = 0.2, m1 = 0.05, e1H = 0.5, 
+  o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.028, DL = 0) #c1 = 0.9
+
+## Create data frame to expand m1----
+comp_out = expand.grid(m1 = seq(0.001, 0.3, by = 0.001),
+                       o1 = c(parms$o1-parms$o1*0.1, parms$o1, parms$o1+parms$o1*0.1))
+
+comp_out = as.data.frame(cbind(comp_out,
+                               matrix(0, 
+                                      nrow = dim(comp_out)[1],
+                                      ###dim(data)[1] is the number of row of data; [2] is col
+                                      ncol = 4)))
+names(comp_out) = c("m1", "o1", "H", "P1H", "P1", "S")
+
+comp_out
+
+for (i in 1:dim(comp_out)[1]) {
+  temp_parms = parms
+  temp_parms["m1"]  = comp_out[i, "m1"]
+  temp_parms["o1"]  = comp_out[i, "o1"]
+  
+  E_P1H = f_E_P1H(temp_parms)
+  Lambda_P1H = Eigen(Jacobain_sgs(temp_parms, E_P1H))
+  E_P1 = f_E_P1(temp_parms)
+  Lambda_P1 = Eigen(Jacobain_sgs(temp_parms, E_P1))
+  E_S = f_E_S(temp_parms)
+  Lambda_S = Eigen(Jacobain_sgs(temp_parms, E_S))
+  
+  Stable_E = c()
+  if (!is.na(Lambda_P1H) == T && is.finite(Lambda_P1H) == T && Lambda_P1H < 0 && all(!is.na(E_P1H) == T)){
+    Stable_E = c(Stable_E, "P1H")
+    comp_out[i, "Stability"] = "Stable"
+    comp_out[i, c("H", "P1H", "P1", "S")] = E_P1H[c("H", "P1H", "P1", "S")]
+  }
+  if(!is.na(Lambda_P1) == T && is.finite(Lambda_P1) == T && Lambda_P1 < 0 && all(!is.na(E_P1) == T)){
+    Stable_E = c(Stable_E, "P1")
+    comp_out[i, "Stability"] = "Stable"
+    comp_out[i, c("H", "P1H", "P1", "S")] = E_P1[c("H", "P1H", "P1", "S")]
+  }
+  if(!is.na(Lambda_S) == T && is.finite(Lambda_S) == T && Lambda_S < 0 && all(!is.na(E_S) == T)){
+    Stable_E = c(Stable_E, "S")
+    comp_out[i, "Stability"] = "Stable"
+    comp_out[i, c("H", "P1H", "P1", "S")] = E_S[c("H", "P1H", "P1", "S")]
+  }
+  
+  comp_out[i, "Stable_E"] = paste(Stable_E, collapse = ",")
+  if(length(Stable_E) == 0){
+    comp_out[i, "Stability"] = "Unstable"
+  }else if(length(Stable_E) != 1){
+    comp_out[i, "Stability"] = "ASS"
+  }
+}
+comp_out = mutate(comp_out, P.total = P1+P1H)
+
+D = 
+  comp_out %>%
+  select(c(m1, P1, P1H, H, S, P.total)) %>% #P1, P2, P1H, P2H, H, S
+  pivot_longer(names_to = "Species", values_to = "Abundance", -c(m1))
+#gather(key = Species, value = Abundance, -c(a1, r)) %>% #using gather()
+
+ggplot(D, aes(x = m1, y = Abundance, color = Species)) +
+  geom_line(mapping = aes(x = m1, y = Abundance, color = Species), lwd = 1) +
+  labs(x = "Intrinsic mortality rate of pathogen (m)", y = "Abundance", color = "Species")+
+  #geom_vline(xintercept = 0.03884541, color = "black", linetype = 2, linewidth = 1) +
+  #geom_vline(xintercept = 0.291, color = "darkgreen", linetype = 2, linewidth = 1)+
+  #breaks = c(seq(0.2, 1, by = 0.2))
+  #ylim(0,3)+
+  scale_colour_manual(values = State_values, labels = State_labels) +
+  #scale_shape_manual(values = c("Stable" = 16, "Unstable" = 3)) + 
+  theme(axis.title.y.right = element_text(angle = 90),
+        legend.position = "bottom")

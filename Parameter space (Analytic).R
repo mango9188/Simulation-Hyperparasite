@@ -7,7 +7,7 @@ parms <- list(r = 1, K = 10,
               o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.028, DL = 0) #d = 0.03
 
 parms <- list(r = 1, K = 10,
-              a1 = 0.38, a2 = 0.51, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
+              a1 = 0.38, a2 = 0.51, psi1 = 0.8, psi2 = 0.8, e1 = 0.5, e2 = 0.5,
               b1 = 0.2, b2 = 0.42, m1 = 0.05, m2 = 0.05, e1H = 0.5, e2H = 0.5,
               o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.02, DL = 0) #biggest alternative stable states
 
@@ -224,7 +224,7 @@ for(i in 1:dim(comp_out)[1]){
   Stable_E = c()
   
   if(!is.na(Lambda_E_C) && is.finite(Lambda_E_C) && Lambda_E_C < 0 && all(E_C[c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')] >= 0)){
-    Stable_E = c("C")
+    Stable_E = c(Stable_E, "C")
     comp_out[i, "Stability"] = "Stable"
     comp_out[i, c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')] = E_C
   }

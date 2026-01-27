@@ -2,13 +2,13 @@
 A = 
   theme_bw()+
   theme(
-    plot.title = element_text(hjust = 0.5, size = 20),
-    axis.text.x = element_text(size = 15),
-    axis.text.y = element_text(size = 15),
-    axis.title.x = element_text(size = 20),
-    axis.title.y = element_text(size = 20),
-    axis.title.y.right = element_text(size = 10),
-    legend.text = element_text(size = 10),
+    plot.title = element_text(hjust = 0.5, size = 15),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 15),
+    axis.title.y = element_text(size = 15),
+    axis.title.y.right = element_text(size = 15),
+    legend.text = element_text(size = 11),
     legend.text.align = 0)
 theme_set(A)
 
@@ -40,17 +40,17 @@ unique_outcomes = unique(comp_out$Stable_E)
 #   "U"        = "#BDBDBD"
 # )
 # 
-mycolor <- c(
-  "C"        = "grey50",
-  "C,P1H"    = "#B38B2D",
-  "C,P2H"    = "#2F5F8F",
-  "P1H"      = "#654321", #dark brown
-  "P1"       = "#895129", #brown
-  "P2H"      = "#9ED8F9",
-  "P2"       = "#36B8FA",
-  "S"        = "darkgreen",
-  "U"        = "pink"
-)
+# mycolor <- c(
+#   "C"        = "grey50",
+#   "C,P1H"    = "#B38B2D",
+#   "C,P2H"    = "#2F5F8F",
+#   "P1H"      = "#654321", #dark brown
+#   "P1"       = "#895129", #brown
+#   "P2H"      = "#9ED8F9",
+#   "P2"       = "#36B8FA",
+#   "S"        = "darkgreen",
+#   "U"        = "pink"
+# )
 # mycolor <- c(
 #   "C" = "#C73824", #red
 #   "U" = "#C7C7C7", #This will be replaced by other grids
@@ -123,3 +123,22 @@ outcome_labels <- c(
   "S" = expression(E[S]),
   "U" = "Unstable"
 )
+
+###For bifurcation and time series----
+State_labels = c("H" = "H",
+                 "P1" = expression(P[1]),
+                 "P1H" = expression(P[1/H]),
+                 "P2" = expression(P[2]),
+                 "P2H" = expression(P[2/H]),
+                 "S" = "S")
+            
+State_values = c("H" = "#D6B701", 
+                 "P1" = alpha("#a50f15", 0.4),
+                 "P1H" = "#a50f15",
+                 "P2" = "#9ecae1",
+                 "P2H" = "#2171b5",
+                 "S" = "#00AF66")
+
+# State_labels = c("P1" = "Pathogen", "P1H" = "Hyperparasited Pathogen", "S" = "Host", "H" = "Hyperparasite", "P.total" = "Total Pathogen")
+# 
+# State_values = c("P1" = "#BCAAA4", "P1H" = "#82491E", "S" = "#00AF66", "H" = "#C03728", "P.total" = "black")
