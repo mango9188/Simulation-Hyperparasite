@@ -1,6 +1,7 @@
 #### This script is for master thesis.
 # Read the package and plot setting
 library(tidyverse)
+library(rootSolve)
 source("M_Theme setting.R", encoding = 'CP950', echo = T)
 
 # Function setting----
@@ -215,7 +216,7 @@ f_E_P2H = function(parms){
   
 }
 }
-
+0
 # Single strain model with no H (i.e., S and P1)----
 parms = list(
   r = 1, K = 10, a1 = 0.35, e1 = 0.5, m1 = 0.05)
@@ -343,7 +344,7 @@ comp_out = mutate(comp_out, P.total = P1+P1H)
 ## Bifurcation plot for S and P1H----
 D = 
   comp_out %>%
-  select(c(m1, P1, P1H, H, S, P.total)) %>% #P1, P2, P1H, P2H, H, S
+  select(c(m1, P1, P1H, H, S)) %>% #P1, P2, P1H, P2H, H, S
   pivot_longer(names_to = "Species", values_to = "Abundance", -c(m1))
 #gather(key = Species, value = Abundance, -c(a1, r)) %>% #using gather()
 
@@ -364,11 +365,11 @@ ggsave("Hyperparasite minimum pesticide.png", width = 20, height = 11, units = "
 ## To find the boundary of H invasion----
 parms = list(
   r = 1, K = 10,
-  a1 = 0.5, psi1 = 1, e1 = 0.5, 
-  b1 = 0.45, e1H = 0.5, 
-  o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.03, DL = 0)
-
-Min.m = function(m1){
+  a1 = 0.51, psi1 = 0.8, e1 = 0.5, 
+  b1 = 0.42, e1H = 0.5, 
+  o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.028, DL = 0)
+#Remember to use the parameter without m1!
+f_Max.m = function(m1){
   with(parms, {
     P_a = (r / a1) * (1 - (m1 / (e1 * a1 * K)))
     P_b = (m1 + o1) * d /(h1 * o1 * b1 - c1 * b1 * (m1 + o1))
@@ -376,7 +377,8 @@ Min.m = function(m1){
     })
 }
 
-uniroot(Min.m, interval = c(0.01, 0.075), tol = 1e-16)$root
+
+(Max.m = uniroot(f_Max.m, interval = c(0.02, 0.04), tol = 1e-16)$root)
 
 
 
@@ -611,78 +613,142 @@ for (i in dim(Data)[1]) {
   )
 }
 
-## Check how parameters affect pathogen resurgence----
+# how pathogen induced mortality affect pathogen resurgence? -----
 parms = list(
   r = 1, K = 10,
-  a1 = 0.38, psi1 = 0.8, e1 = 0.5, 
-  b1 = 0.2, m1 = 0.05, e1H = 0.5, 
-  o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.028, DL = 0) #c1 = 0.9
+  a1 = 0.51, psi1 = 0.8, e1 = 0.5, 
+  b1 = 0.42, e1H = 0.5, 
+  o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.028)
+#Remember to use the parameter without m1!
+m1.min = 0.001
 
-## Create data frame to expand m1----
-comp_out = expand.grid(m1 = seq(0.001, 0.3, by = 0.001),
-                       o1 = c(parms$o1-parms$o1*0.1, parms$o1, parms$o1+parms$o1*0.1))
-
-comp_out = as.data.frame(cbind(comp_out,
-                               matrix(0, 
-                                      nrow = dim(comp_out)[1],
-                                      ###dim(data)[1] is the number of row of data; [2] is col
-                                      ncol = 4)))
-names(comp_out) = c("m1", "o1", "H", "P1H", "P1", "S")
-
-comp_out
+comp_out = data.frame(o1 = c(parms$o1 - parms$o1*0.1, parms$o1, parms$o1 + parms$o1*0.1),
+                      m1.min = m1.min,
+                      m1.max = 0,
+                      P.total.min = 0,
+                      P.total.max = 0)
 
 for (i in 1:dim(comp_out)[1]) {
   temp_parms = parms
-  temp_parms["m1"]  = comp_out[i, "m1"]
-  temp_parms["o1"]  = comp_out[i, "o1"]
-  
-  E_P1H = f_E_P1H(temp_parms)
-  Lambda_P1H = Eigen(Jacobain_sgs(temp_parms, E_P1H))
-  E_P1 = f_E_P1(temp_parms)
-  Lambda_P1 = Eigen(Jacobain_sgs(temp_parms, E_P1))
-  E_S = f_E_S(temp_parms)
-  Lambda_S = Eigen(Jacobain_sgs(temp_parms, E_S))
-  
-  Stable_E = c()
-  if (!is.na(Lambda_P1H) == T && is.finite(Lambda_P1H) == T && Lambda_P1H < 0 && all(!is.na(E_P1H) == T)){
-    Stable_E = c(Stable_E, "P1H")
-    comp_out[i, "Stability"] = "Stable"
-    comp_out[i, c("H", "P1H", "P1", "S")] = E_P1H[c("H", "P1H", "P1", "S")]
+  temp_parms$o1 = comp_out[i, "o1"]
+  f_Max.m = function(m1){
+    with(temp_parms, {
+      P_a = (r / a1) * (1 - (m1 / (e1 * a1 * K)))
+      P_b = (m1 + o1) * d /(h1 * o1 * b1 - c1 * b1 * (m1 + o1))
+      return(P_a - P_b)
+    })
   }
-  if(!is.na(Lambda_P1) == T && is.finite(Lambda_P1) == T && Lambda_P1 < 0 && all(!is.na(E_P1) == T)){
-    Stable_E = c(Stable_E, "P1")
-    comp_out[i, "Stability"] = "Stable"
-    comp_out[i, c("H", "P1H", "P1", "S")] = E_P1[c("H", "P1H", "P1", "S")]
-  }
-  if(!is.na(Lambda_S) == T && is.finite(Lambda_S) == T && Lambda_S < 0 && all(!is.na(E_S) == T)){
-    Stable_E = c(Stable_E, "S")
-    comp_out[i, "Stability"] = "Stable"
-    comp_out[i, c("H", "P1H", "P1", "S")] = E_S[c("H", "P1H", "P1", "S")]
-  }
-  
-  comp_out[i, "Stable_E"] = paste(Stable_E, collapse = ",")
-  if(length(Stable_E) == 0){
-    comp_out[i, "Stability"] = "Unstable"
-  }else if(length(Stable_E) != 1){
-    comp_out[i, "Stability"] = "ASS"
-  }
+  comp_out[i, "m1.max"] = uniroot(f_Max.m, interval = c(0.01, 0.08), tol = 1e-8)$root
+  #Get the critical value of m that makes hyperparasite persist.
+  temp_parms$m1 = comp_out[i, "m1.min"]
+  comp_out[i, "P.total.min"] = f_E_P1H(temp_parms)["P1H"] + f_E_P1H(temp_parms)["P1"]
+  temp_parms$m1 = comp_out[i, "m1.max"]
+  comp_out[i, "P.total.max"] = f_E_P1(temp_parms)["P1"]
 }
-comp_out = mutate(comp_out, P.total = P1+P1H)
 
-D = 
-  comp_out %>%
-  select(c(m1, P1, P1H, H, S, P.total)) %>% #P1, P2, P1H, P2H, H, S
-  pivot_longer(names_to = "Species", values_to = "Abundance", -c(m1))
-#gather(key = Species, value = Abundance, -c(a1, r)) %>% #using gather()
+comp_out = mutate(comp_out, slope = (P.total.max-P.total.min) / (m1.max-m1.min))
 
-ggplot(D, aes(x = m1, y = Abundance, color = Species)) +
-  geom_line(mapping = aes(x = m1, y = Abundance, color = Species), lwd = 1) +
-  labs(x = "Intrinsic mortality rate of pathogen (m)", y = "Abundance", color = "Species")+
-  #geom_vline(xintercept = 0.03884541, color = "black", linetype = 2, linewidth = 1) +
-  #geom_vline(xintercept = 0.291, color = "darkgreen", linetype = 2, linewidth = 1)+
-  #breaks = c(seq(0.2, 1, by = 0.2))
-  #ylim(0,3)+
-  scale_colour_manual(values = State_values, labels = State_labels) +
-  #scale_shape_manual(values = c("Stable" = 16, "Unstable" = 3)) + 
-  theme(axis.title.y.right = element_text(angle = 90),
-        legend.position = "bottom")
+comp_out
+ggplot(comp_out, mapping = aes(x = factor(o1), y = slope))+
+  geom_col(position = "identity")+
+  coord_flip()
+
+## Method 2, using function----
+Get_slope = function(parmsA){
+  # Define minimum m1
+  m1.min = 0.001
+  
+  # Define maximum m1
+  f_Max.m = function(parmsA){
+    with(parmsA, {
+      A = (c1*b1*r)/(e1*a1*K)
+      B = -c1*b1*r - a1*d - (h1*o1*b1*r)/(e1*a1*K) + (c1*b1*r*o1)/(e1*a1*K)
+      C = h1*o1*b1*r - a1*d*o1 - c1*b1*r*o1
+      E = B^2 - 4*A*C
+      if(E < 0 || is.na(E)){
+        m1.max = NA
+      }else{
+        R1 = (-B + sqrt(B^2-4*A*C)) / (2*A)
+        R2 = (-B - sqrt(B^2-4*A*C)) / (2*A)
+        R = c(R1,R2)
+        R = R[R > 0 & !is.na(R) & is.finite(R)]
+        if(length(R) == 0){
+          m1.max = NA
+        } else {
+          m1.max = min(R) #Choose the smallest one which is biologically meaningful
+        }
+      }
+      return(m1.max)
+    })
+  }
+  m1.max = f_Max.m(parmsA)
+  
+  # Define parameters
+  temp_parms = parmsA
+  
+  temp_parms$m1 = m1.min
+  P.total.min = f_E_P1H(temp_parms)["P1H"] + f_E_P1H(temp_parms)["P1"]
+  temp_parms$m1 = m1.max
+  P.total.max = f_E_P1(temp_parms)["P1"]
+  
+  # Calculate slope
+  slope = (P.total.max - P.total.min) / (m1.max - m1.min)
+  return(setNames(
+    c(m1.min, m1.max, P.total.min, P.total.max, slope),
+    c("m1.min", "m1.max", "P.total.min"," P.total.max", "slope")))
+}
+
+result_list = list()
+start_time = Sys.time()
+for (i in names(unlist(parms))) {
+  # Set and reset the parameters
+  parms = parms
+  parms.in = parms
+  parms.de = parms
+  
+  parms.de[i] = unlist(parms[i])*0.9 #specific parm - 10%
+  parms.in[i] = unlist(parms[i])*1.1 #specific parm + 10%
+  
+  Get_slope(parms.de)
+  Get_slope(parms.in)
+  
+  result_list[[length(result_list) + 1]] = 
+    data.frame(parameter = i,
+               value = "-10%",
+               m1.min = Get_slope(parms.de)[1],
+               m1.max = Get_slope(parms.de)[2],
+               P.total.min = Get_slope(parms.de)[3],
+               P.total.max = Get_slope(parms.de)[4],
+               slope = Get_slope(parms.de)[5],
+               delta_slope = (Get_slope(parms.de)[5] - Get_slope(parms)[5])/ Get_slope(parms)[5])
+  
+  # result_list[[length(result_list) + 1]] = 
+  #   data.frame(parameter = i,
+  #              value = "Origin",
+  #              m1.min = Get_slope(parms)[1],
+  #              m1.max = Get_slope(parms)[2],
+  #              P.total.min = Get_slope(parms)[3],
+  #              P.total.max = Get_slope(parms)[4],
+  #              slope = Get_slope(parms)[5])
+  
+  result_list[[length(result_list) + 1]] = 
+    data.frame(parameter = i,
+               value = "+10%",
+               m1.min = Get_slope(parms.in)[1],
+               m1.max = Get_slope(parms.in)[2],
+               P.total.min = Get_slope(parms.in)[3],
+               P.total.max = Get_slope(parms.in)[4],
+               slope = Get_slope(parms.in)[5],
+               delta_slope = (Get_slope(parms.in)[5] - Get_slope(parms)[5])/ Get_slope(parms)[5])
+
+}
+end_time = Sys.time()
+end_time - start_time
+
+result_df = do.call(rbind, result_list)
+
+result_df %>%
+  mutate(parameter = paste(parameter, value)) %>%
+  ggplot()+
+  geom_col(mapping = aes(x = factor(parameter), y = delta_slope))+
+  coord_flip()

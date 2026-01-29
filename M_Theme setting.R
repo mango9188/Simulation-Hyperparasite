@@ -1,3 +1,4 @@
+library(paletteer)
 #Theme setting----
 A = 
   theme_bw()+
