@@ -1,7 +1,6 @@
 #### This script is for master thesis.
 # Read the package and plot setting
 library(tidyverse)
-library(rootSolve)
 source("M_Theme setting.R", encoding = 'CP950', echo = T)
 
 # Function setting----
@@ -285,14 +284,20 @@ ggplot(D, aes(x = m1, y = Abundance, color = Species)) +
 ggsave("5min No natural enemies.png", width = 15, height = 11, units = "cm", dpi = 800, bg = "transparent")
 
 # Single strain model with H (i.e., S, P1, P1H, and H)----
+# parms = list(
+#   r = 1, K = 10,
+#   a1 = 0.38, psi1 = 0.8, e1 = 0.5, 
+#   b1 = 0.2, m1 = 0.05, e1H = 0.5, 
+#   o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.028, DL = 0) #c1 = 0.9
+
 parms = list(
   r = 1, K = 10,
-  a1 = 0.38, psi1 = 0.8, e1 = 0.5, 
-  b1 = 0.2, m1 = 0.05, e1H = 0.5, 
-  o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.028, DL = 0) #c1 = 0.9
+  a1 = 0.25, psi1 = 1, e1 = 0.5, 
+  b1 = 0.2, e1H = 0.5, 
+  o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.01)
 
 ## Create data frame to expand m1----
-comp_out = expand.grid(m1 = seq(0.001, 0.3, by = 0.001))
+comp_out = expand.grid(m1 = seq(0.001, 0.1, by = 0.001))
 comp_out = as.data.frame(cbind(comp_out,
                                matrix(0, 
                                       nrow = dim(comp_out)[1],
@@ -341,25 +346,39 @@ for (i in 1:dim(comp_out)[1]) {
 ###It is possible that data contains NA because m1 can be large enough that P1 would no longer persist H.
 comp_out = mutate(comp_out, P.total = P1+P1H)
 
-## Bifurcation plot for S and P1H----
+## Bifurcation plot----
 D = 
   comp_out %>%
-  select(c(m1, P1, P1H, H, S)) %>% #P1, P2, P1H, P2H, H, S
+  select(c(m1, P1, P1H, H, S, P.total)) %>% #P1, P2, P1H, P2H, H, S
   pivot_longer(names_to = "Species", values_to = "Abundance", -c(m1))
 #gather(key = Species, value = Abundance, -c(a1, r)) %>% #using gather()
+D$Group = 0
+D[D[, "Species"] == "H", ]$Group = 1
+D[D[, "Species"] == "S", ]$Group = 1
+D[D[, "Species"] == "P1", ]$Group = 2
+D[D[, "Species"] == "P1H", ]$Group = 2
+D[D[, "Species"] == "P.total", ]$Group = 2
+
+
 
 ggplot(D, aes(x = m1, y = Abundance, color = Species)) +
   geom_line(mapping = aes(x = m1, y = Abundance, color = Species), lwd = 1) +
   labs(x = "Intrinsic mortality rate of pathogen (m)", y = "Abundance", color = "Species")+
-  #geom_vline(xintercept = 0.03884541, color = "black", linetype = 2, linewidth = 1) +
-  #geom_vline(xintercept = 0.291, color = "darkgreen", linetype = 2, linewidth = 1)+
+  geom_vline(xintercept = 0.0755, color = "black", linetype = 2, linewidth = 1) +
+  #geom_vline(xintercept = 0.6045, color = "darkgreen", linetype = 2, linewidth = 1)+
   #breaks = c(seq(0.2, 1, by = 0.2))
-  #ylim(0,3)+
-  scale_colour_manual(values = State_values, labels = State_labels) +
-  #scale_shape_manual(values = c("Stable" = 16, "Unstable" = 3)) + 
-  theme(axis.title.y.right = element_text(angle = 90),
-        legend.position = "bottom")
-ggsave("Hyperparasite minimum pesticide.png", width = 20, height = 11, units = "cm", dpi = 800)
+  #ylim(0,3.1)+
+  #labs(title = expression(r + "5%"))+
+  #xlim(0, 0.08)+
+  #ylim(0, 5)+
+  facet_grid(Group ~ ., scales = "free_y")+
+  scale_colour_manual(values = State_values, labels = State_labels_SS) +
+  theme(axis.title.y.right = element_text(angle = 90), legend.position = "bottom", strip.background = element_blank(), strip.text = element_blank())
+
+
+ggsave("Single strain bifurcation (Dash line).png", width = 15, height = 11, units = "cm", dpi = 800)
+# ggsave("", width = 20, height = 11, units = "cm", dpi = 800)
+# ggsave("", width = 14, height = 10, units = "cm", dpi = 800)
 
 
 ## To find the boundary of H invasion----
@@ -367,7 +386,7 @@ parms = list(
   r = 1, K = 10,
   a1 = 0.51, psi1 = 0.8, e1 = 0.5, 
   b1 = 0.42, e1H = 0.5, 
-  o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.028, DL = 0)
+  o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.02, DL = 0)
 #Remember to use the parameter without m1!
 f_Max.m = function(m1){
   with(parms, {
@@ -378,7 +397,7 @@ f_Max.m = function(m1){
 }
 
 
-(Max.m = uniroot(f_Max.m, interval = c(0.02, 0.04), tol = 1e-16)$root)
+(Max.m = uniroot(f_Max.m, interval = c(0.05, 0.07), tol = 1e-16)$root)
 
 
 
@@ -613,12 +632,15 @@ for (i in dim(Data)[1]) {
   )
 }
 
-# how pathogen induced mortality affect pathogen resurgence? -----
+# how parameters affect pathogen resurgence? (sensitivity analysis)-----
 parms = list(
   r = 1, K = 10,
-  a1 = 0.51, psi1 = 0.8, e1 = 0.5, 
-  b1 = 0.42, e1H = 0.5, 
-  o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.028)
+  a1 = 0.25, psi1 = 1, e1 = 0.5, 
+  b1 = 0.2, e1H = 0.5, 
+  o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.01)
+0
+## Method 1, simple for-loop -----
+#To understand how hyperparasite induced mortality affect pathogen resurgence
 #Remember to use the parameter without m1!
 m1.min = 0.001
 
@@ -686,16 +708,27 @@ Get_slope = function(parmsA){
   # Define parameters
   temp_parms = parmsA
   
+  # Calculate state variables
   temp_parms$m1 = m1.min
+  H.min = f_E_P1H(temp_parms)["H"]
+  P.min = f_E_P1H(temp_parms)["P1"]
+  PH.min = f_E_P1H(temp_parms)["P1H"]
+  S.min = f_E_P1H(temp_parms)["S"]
   P.total.min = f_E_P1H(temp_parms)["P1H"] + f_E_P1H(temp_parms)["P1"]
+  
   temp_parms$m1 = m1.max
   P.total.max = f_E_P1(temp_parms)["P1"]
-  
+  S.max = f_E_P1(temp_parms)["S"]
+
   # Calculate slope
-  slope = (P.total.max - P.total.min) / (m1.max - m1.min)
+  P.slope = (P.total.max - P.total.min) / (m1.max - m1.min)
+  
+
+  
+  #Return value
   return(setNames(
-    c(m1.min, m1.max, P.total.min, P.total.max, slope),
-    c("m1.min", "m1.max", "P.total.min"," P.total.max", "slope")))
+    c(m1.min, m1.max, H.min, P.min, PH.min, S.min, S.max, P.total.min, P.total.max, P.slope),
+    c("m1.min", "m1.max", "H.min", "P.min", "PH.min", "S.min", "S.max", "P.total.min", "P.total.max", "P.slope")))
 }
 
 result_list = list()
@@ -706,21 +739,26 @@ for (i in names(unlist(parms))) {
   parms.in = parms
   parms.de = parms
   
-  parms.de[i] = unlist(parms[i])*0.9 #specific parm - 10%
-  parms.in[i] = unlist(parms[i])*1.1 #specific parm + 10%
+  parms.de[i] = unlist(parms[i])*0.95 #specific parm - 5%
+  parms.in[i] = unlist(parms[i])*1.05 #specific parm + 5%
   
   Get_slope(parms.de)
   Get_slope(parms.in)
   
   result_list[[length(result_list) + 1]] = 
     data.frame(parameter = i,
-               value = "-10%",
+               value = "-5%",
                m1.min = Get_slope(parms.de)[1],
                m1.max = Get_slope(parms.de)[2],
-               P.total.min = Get_slope(parms.de)[3],
-               P.total.max = Get_slope(parms.de)[4],
-               slope = Get_slope(parms.de)[5],
-               delta_slope = (Get_slope(parms.de)[5] - Get_slope(parms)[5])/ Get_slope(parms)[5])
+               H.min = Get_slope(parms.de)[3],
+               P.min = Get_slope(parms.de)[4],
+               PH.min = Get_slope(parms.de)[5],
+               S.min = Get_slope(parms.de)[6],
+               S.max = Get_slope(parms.de)[7],
+               P.total.min = Get_slope(parms.de)[8],
+               P.total.max = Get_slope(parms.de)[9],
+               P.slope = Get_slope(parms.de)[10],
+               delta_slope = (Get_slope(parms.de)[10] - Get_slope(parms)[10])/ Get_slope(parms)[10])
   
   # result_list[[length(result_list) + 1]] = 
   #   data.frame(parameter = i,
@@ -733,22 +771,73 @@ for (i in names(unlist(parms))) {
   
   result_list[[length(result_list) + 1]] = 
     data.frame(parameter = i,
-               value = "+10%",
+               value = "+5%",
                m1.min = Get_slope(parms.in)[1],
                m1.max = Get_slope(parms.in)[2],
-               P.total.min = Get_slope(parms.in)[3],
-               P.total.max = Get_slope(parms.in)[4],
-               slope = Get_slope(parms.in)[5],
-               delta_slope = (Get_slope(parms.in)[5] - Get_slope(parms)[5])/ Get_slope(parms)[5])
+               H.min = Get_slope(parms.in)[3],
+               P.min = Get_slope(parms.in)[4],
+               PH.min = Get_slope(parms.in)[5],
+               S.min = Get_slope(parms.in)[6],
+               S.max = Get_slope(parms.in)[7],
+               P.total.min = Get_slope(parms.in)[8],
+               P.total.max = Get_slope(parms.in)[9],
+               P.slope = Get_slope(parms.in)[10],
+               delta_slope = (Get_slope(parms.in)[10] - Get_slope(parms)[10])/ Get_slope(parms)[10])
 
 }
 end_time = Sys.time()
 end_time - start_time
 
+
+
 result_df = do.call(rbind, result_list)
 
+#Plotting relative slope (compared to the original parameter set)
 result_df %>%
   mutate(parameter = paste(parameter, value)) %>%
   ggplot()+
   geom_col(mapping = aes(x = factor(parameter), y = delta_slope))+
-  coord_flip()
+  coord_flip()+
+  labs(x = "Parameters", y = expression(Delta*"Slope"))
+
+#Plotting slope value
+result_df %>%
+  # filter(value == "+5%") %>%
+  #mutate(parameter = paste(parameter, value)) %>%
+  ggplot()+
+  geom_col(mapping = aes(x = factor(parameter), y = P.slope, fill = value), position = "dodge")+
+  geom_hline(yintercept = Get_slope(parms)["P.slope"], color = "black", linetype = 2, linewidth = 1) +
+  labs(x = "Parameters", y = "Slope", fill = "Variation")+
+  scale_x_discrete(labels = c("r" = "r",
+                              "psi1" = expression(psi),
+                              "o1" = expression(omega),
+                              "K" = "K",
+                              "h1" = "h",
+                              "e1H" = expression(e[H]),
+                              "e1" = expression(e),
+                              "d" = "d",
+                              "c1" = "c",
+                              "b1" = expression(beta),
+                              "a1" = expression(alpha)))
+  #coord_flip()
+  
+#Plotting initial abundance of H
+result_df %>%
+  filter(value == "+5%") %>%
+  #mutate(parameter = paste(parameter, value)) %>%
+  ggplot()+
+  geom_col(mapping = aes(x = factor(parameter), y = H.min))+
+  geom_hline(yintercept = Get_slope(parms)["H.min"], color = "black", linetype = 2, linewidth = 1) +
+  labs(x = "Parameters + 5%", y = "Initial abundance ratio of H")+
+  scale_x_discrete(labels = c("r" = "r",
+                              "psi1" = expression(psi),
+                              "o1" = expression(omega),
+                              "K" = "K",
+                              "h1" = "h",
+                              "e1H" = expression(e[H]),
+                              "e1" = expression(e),
+                              "d" = "d",
+                              "c1" = "c",
+                              "b1" = expression(beta),
+                              "a1" = expression(alpha)))
+ggsave("Sensitivity analysis variation.png", width = 15, height = 16, units = "cm", dpi = 800)

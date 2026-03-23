@@ -10,7 +10,7 @@ parms = list(
   o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.028, DL = 0)
 
 parms <- list(r = 1, K = 10,
-              a1 = 0.38, a2 = 0.51, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
+              a1 = 0.38, a2 = 0.51, psi1 = 0.8, psi2 = 0.8, e1 = 0.5, e2 = 0.5,
               b1 = 0.2, b2 = 0.42, e1H = 0.5, e2H = 0.5,
               o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.02, DL = 0)
 
@@ -113,6 +113,10 @@ f_IGRH2 = function(m2){
     byrow = T)
   EIGEN <- eigen(Leslie)
   max(EIGEN$values)
+}
+
+f_Rstar = function(m1, m2){
+  
 }
 
 comp_out$IGR1 = mapply(f_IGR1, comp_out$m1, comp_out$m2)

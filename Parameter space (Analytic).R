@@ -11,8 +11,8 @@ parms <- list(r = 1, K = 10,
               b1 = 0.2, b2 = 0.42, m1 = 0.05, m2 = 0.05, e1H = 0.5, e2H = 0.5,
               o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.02, DL = 0) #biggest alternative stable states
 
-comp_out = expand.grid(m1 = seq(0.001, 0.1, by = 0.001), 
-                       m2 = seq(0.001, 0.1, by = 0.001))
+comp_out = expand.grid(m1 = seq(0.001, 0.1, by = 0.00001), 
+                       m2 = 0.016)
 
 #### Create data frame----
 comp_out <- as.data.frame(cbind(comp_out,
@@ -22,7 +22,9 @@ comp_out <- as.data.frame(cbind(comp_out,
                                        ncol = 6 + 1)))
 names(comp_out) <- c("m1", "m2", "H", "P1H", "P2H", "P1", "P2", "S", "Stability")
 
-comp_out
+comp_out =
+  comp_out %>%
+  mutate(m2 = m1)
 
 #### Function setting----
 {
@@ -223,6 +225,11 @@ for(i in 1:dim(comp_out)[1]){
   
   Stable_E = c()
   
+  if(!is.na(Lambda_E_P2H) && is.finite(Lambda_E_P2H) && Lambda_E_P2H < 0 && all(E_P2H[c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')] >= 0)){
+    Stable_E = c(Stable_E, "P2H")
+    comp_out[i, "Stability"] = "Stable"
+    comp_out[i, c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')] = E_P2H
+  }
   if(!is.na(Lambda_E_C) && is.finite(Lambda_E_C) && Lambda_E_C < 0 && all(E_C[c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')] >= 0)){
     Stable_E = c(Stable_E, "C")
     comp_out[i, "Stability"] = "Stable"
@@ -248,11 +255,9 @@ for(i in 1:dim(comp_out)[1]){
     comp_out[i, "Stability"] = "Stable"
     comp_out[i, c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')] = E_P1H
   }
-  if(!is.na(Lambda_E_P2H) && is.finite(Lambda_E_P2H) && Lambda_E_P2H < 0 && all(E_P2H[c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')] >= 0)){
-    Stable_E = c(Stable_E, "P2H")
-    comp_out[i, "Stability"] = "Stable"
-    comp_out[i, c('H', 'P1H', 'P2H', 'P1', 'P2', 'S')] = E_P2H
-  }
+
+
+
   comp_out[i, "Stable_E"] = paste(Stable_E, collapse = ",")
   
   if(length(Stable_E) == 0){
@@ -274,5 +279,5 @@ comp_out$Outcome2 = apply(comp_out[, c("H", "P1H", "P2H", "P1", "P2")], 1, funct
 })
 comp_out[which(comp_out$Stable_E == ""), "Stable_E"] = "U"
 
-#saveRDS(comp_out, "Pre4A1_d028")
+saveRDS(comp_out, "Pre4A1_d002_psi08_same m")
 View(comp_out)

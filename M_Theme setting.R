@@ -102,7 +102,8 @@ mycolor <- c(
   "P1,P2" = "#B7AEA0",
   "P1H,P2H" = "#929292",
   "C,P1H" = "pink",
-  "C,P2H" = "#525252")
+  "C,P2H" = "#525252",
+  "P2,P1H" = "#F5F5DC")
 
 "#D6B701" #H
 "#00AF66" #S
@@ -117,6 +118,7 @@ outcome_labels <- c(
   "C,P2H" = expression(E[C] ~"or"~ E[P[2]*H]),
   "P1H,P2H" = expression(E[P[1]*H] ~"or"~ E[P[2]*H]),
   "P1,P2" = expression(E[P[1]] ~"or"~ E[P[2]]),
+  "P2,P1H" = expression(E[P[2]] ~"or"~ E[P[1]*H]),
   "P1H" = expression(E[P[1]*H]),
   "P1" = expression(E[P[1]]),
   "P2H" = expression(E[P[2]*H]),
@@ -125,20 +127,82 @@ outcome_labels <- c(
   "U" = "Unstable"
 )
 
-###For bifurcation and time series----
+outcome_labels <- c(
+  "C" = "Coexistence",
+  "C,P1H" = expression("Coexistence or"~ P[1]~ "wins with H"),
+  "C,P2H" = expression("Coexistence or"~ P[2]~ "wins with H"),
+  "P1H,P2H" = expression(P[1]~ "wins with H or" ~ P[2]~ "wins with H"),
+  "P1,P2" = expression(P[1]~ "wins or" ~ P[2]~ "wins"),
+  "P2,P1H" = expression(P[2]~ "wins or"~ P[1]~ "wins with H"),
+  "P1H" = expression(P[1]~ "wins with H"),
+  "P1" = expression(P[1] ~ "wins"),
+  "P2H" = expression(P[2]~ "wins with H"),
+  "P2" = expression(P[2] ~ "wins"),
+  "S" = "Host only",
+  "U" = "Unstable"
+)
+
+outcome_labels <- c(
+  "C" = expression(P[1] + P[2] + H),
+  "C,P1H" = expression(P[1] + P[2] + H ~"/"~~ P[1] + H),
+  "C,P2H" = expression(P[1] + P[2] + H ~"/"~~ P[2] + H),
+  "P1H,P2H" = expression(P[1] + H ~"/"~~ P[2] + H),
+  "P1,P2" = expression(P[1] ~"/"~~ P[2]),
+  "P2,P1H" = expression(P[2] ~"/"~~ P[1] + H),
+  "P1H" = expression(P[1] + H),
+  "P1" = expression(P[1]),
+  "P2H" = expression(P[2]+ H),
+  "P2" = expression(P[2]),
+  "S" = "S",
+  "U" = "Unstable"
+)
+# 
+# outcome_labels <- c(
+#   "C" = expression("All coexist"),
+#   "C,P1H" = expression("All coexist" ~~"||"~~ P[1]*H ~~ "wins"),
+#   "C,P2H" = expression("All coexist" ~~"||"~~ P[2]*H ~~ "wins"),
+#   "P1H,P2H" = expression(P[1]*H ~~ "wins" ~~"||"~~ P[2]*H ~~ "wins"),
+#   "P1,P2" = expression(P[1] ~~ "wins" ~~"||"~~ P[2] ~~ "wins"),
+#   "P2,P1H" = expression(P[2] ~~ "wins" ~~"||"~~ P[1/H] ~~ "wins"),
+#   "P1H" = expression(P[1]*H ~~ "wins"),
+#   "P1" = expression(P[1] ~~ "wins"),
+#   "P2H" = expression(P[2]*H ~~ "wins"),
+#   "P2" = expression(P[2] ~~ "wins"),
+#   "S" = expression(E[S]),
+#   "U" = "Unstable"
+# )
+
+##For bifurcation and time series----
 State_labels = c("H" = "H",
                  "P1" = expression(P[1]),
                  "P1H" = expression(P[1/H]),
+                 "P1T" = expression(P[1]~"total"), #P1+P1H
                  "P2" = expression(P[2]),
-                 "P2H" = expression(P[2/H]),
+                 "P2H" = expression(P[2/H]), 
+                 "P2T" = expression(P[2]~"total"), #P2+P2H
                  "S" = "S")
+
+State_labels_SS = c("H" = "H",
+                 "P1" = expression(P),
+                 "P1H" = expression(P[H]),
+                 "P.total" = "P.total",
+                 "S" = "S")
+
+# State_labels = c("H" = "Hyperparasite",
+#                  "P1" = "Pathogen",
+#                  "P1H" = "Hyperparasitized pathogen",
+#                  "S" = "Host",
+#                  "P.total" = "Total Pathogen")
             
 State_values = c("H" = "#D6B701", 
                  "P1" = alpha("#a50f15", 0.4),
                  "P1H" = "#a50f15",
+                 "P1T" = "red",
                  "P2" = "#9ecae1",
                  "P2H" = "#2171b5",
-                 "S" = "#00AF66")
+                 "P2T" = "blue",
+                 "S" = "#00AF66",
+                 "P.total" = "black")
 
 # State_labels = c("P1" = "Pathogen", "P1H" = "Hyperparasited Pathogen", "S" = "Host", "H" = "Hyperparasite", "P.total" = "Total Pathogen")
 # 
