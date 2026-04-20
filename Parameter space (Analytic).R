@@ -11,8 +11,9 @@ parms <- list(r = 1, K = 10,
               b1 = 0.2, b2 = 0.42, m1 = 0.05, m2 = 0.05, e1H = 0.5, e2H = 0.5,
               o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.02, DL = 0) #biggest alternative stable states
 
-comp_out = expand.grid(m1 = seq(0.001, 0.1, by = 0.00001), 
-                       m2 = 0.016)
+comp_out = expand.grid(
+                       m1 = 0.085,
+                       m2 = seq(0.001, 0.1, by = 0.001))
 
 #### Create data frame----
 comp_out <- as.data.frame(cbind(comp_out,
@@ -22,9 +23,9 @@ comp_out <- as.data.frame(cbind(comp_out,
                                        ncol = 6 + 1)))
 names(comp_out) <- c("m1", "m2", "H", "P1H", "P2H", "P1", "P2", "S", "Stability")
 
-comp_out =
-  comp_out %>%
-  mutate(m2 = m1)
+# comp_out =
+#   comp_out %>%
+#   mutate(m2 = m1)
 
 #### Function setting----
 {
@@ -279,5 +280,5 @@ comp_out$Outcome2 = apply(comp_out[, c("H", "P1H", "P2H", "P1", "P2")], 1, funct
 })
 comp_out[which(comp_out$Stable_E == ""), "Stable_E"] = "U"
 
-saveRDS(comp_out, "Pre4A1_d002_psi08_same m")
+# saveRDS(comp_out, "Pre4A1_d002_psi08_same m")
 View(comp_out)

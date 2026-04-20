@@ -2,7 +2,7 @@
 # Read the package and plot setting
 library(tidyverse)
 source("M_Theme setting.R", encoding = 'CP950', echo = T)
-
+library(patchwork)
 # Function setting----
 {
 Jacobian_full = function(parms, E) {
@@ -221,7 +221,7 @@ parms = list(
   r = 1, K = 10, a1 = 0.35, e1 = 0.5, m1 = 0.05)
 
 #Create data frame to expand m1
-comp_out = expand.grid(m1 = seq(0.01, 0.7, by = 0.1))
+comp_out = expand.grid(m1 = seq(0.01, 0.5, by = 0.01))
 comp_out = as.data.frame(cbind(comp_out,
                                 matrix(0, 
                                        nrow = dim(comp_out)[1],
@@ -261,6 +261,8 @@ for (i in 1:dim(comp_out)[1]) {
     comp_out[i, "Stability"] = "ASS"
   }
 }
+
+comp_out$System = "SP"
 
 #Bifurcation plot for S and P1
 D = 
@@ -635,9 +637,9 @@ for (i in dim(Data)[1]) {
 # how parameters affect pathogen resurgence? (sensitivity analysis)-----
 parms = list(
   r = 1, K = 10,
-  a1 = 0.25, psi1 = 1, e1 = 0.5, 
+  a1 = 0.25, psi1 = 0.8, e1 = 0.5, 
   b1 = 0.2, e1H = 0.5, 
-  o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.01)
+  o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.03)
 0
 ## Method 1, simple for-loop -----
 #To understand how hyperparasite induced mortality affect pathogen resurgence
@@ -722,13 +724,13 @@ Get_slope = function(parmsA){
 
   # Calculate slope
   P.slope = (P.total.max - P.total.min) / (m1.max - m1.min)
-  
+  S.slope = (S.max - S.min) / (m1.max - m1.min)
 
   
   #Return value
   return(setNames(
-    c(m1.min, m1.max, H.min, P.min, PH.min, S.min, S.max, P.total.min, P.total.max, P.slope),
-    c("m1.min", "m1.max", "H.min", "P.min", "PH.min", "S.min", "S.max", "P.total.min", "P.total.max", "P.slope")))
+    c(m1.min, m1.max, H.min, P.min, PH.min, S.min, S.max, P.total.min, P.total.max, P.slope, S.slope),
+    c("m1.min", "m1.max", "H.min", "P.min", "PH.min", "S.min", "S.max", "P.total.min", "P.total.max", "P.slope", "S.slope")))
 }
 
 result_list = list()
@@ -757,6 +759,7 @@ for (i in names(unlist(parms))) {
                S.max = Get_slope(parms.de)[7],
                P.total.min = Get_slope(parms.de)[8],
                P.total.max = Get_slope(parms.de)[9],
+               S.slope = Get_slope(parms.de)[11],
                P.slope = Get_slope(parms.de)[10],
                delta_slope = (Get_slope(parms.de)[10] - Get_slope(parms)[10])/ Get_slope(parms)[10])
   
@@ -781,6 +784,7 @@ for (i in names(unlist(parms))) {
                S.max = Get_slope(parms.in)[7],
                P.total.min = Get_slope(parms.in)[8],
                P.total.max = Get_slope(parms.in)[9],
+               S.slope = Get_slope(parms.in)[11],
                P.slope = Get_slope(parms.in)[10],
                delta_slope = (Get_slope(parms.in)[10] - Get_slope(parms)[10])/ Get_slope(parms)[10])
 
@@ -792,7 +796,7 @@ end_time - start_time
 
 result_df = do.call(rbind, result_list)
 
-#Plotting relative slope (compared to the original parameter set)
+####Plotting relative slope (compared to the original parameter set)----
 result_df %>%
   mutate(parameter = paste(parameter, value)) %>%
   ggplot()+
@@ -800,28 +804,45 @@ result_df %>%
   coord_flip()+
   labs(x = "Parameters", y = expression(Delta*"Slope"))
 
-#Plotting slope value
+####Plotting slope value----
+
+param_labels = c("r" = "r",
+                  "psi1" = expression(psi),
+                  "o1" = expression(omega),
+                  "K" = "K",
+                  "h1" = "h",
+                  "e1H" = expression(e[H]),
+                  "e1" = expression(e),
+                  "d" = "d",
+                  "c1" = "c",
+                  "b1" = expression(beta),
+                  "a1" = expression(alpha))
+
+Sensitivity_P = 
 result_df %>%
   # filter(value == "+5%") %>%
   #mutate(parameter = paste(parameter, value)) %>%
   ggplot()+
   geom_col(mapping = aes(x = factor(parameter), y = P.slope, fill = value), position = "dodge")+
   geom_hline(yintercept = Get_slope(parms)["P.slope"], color = "black", linetype = 2, linewidth = 1) +
-  labs(x = "Parameters", y = "Slope", fill = "Variation")+
-  scale_x_discrete(labels = c("r" = "r",
-                              "psi1" = expression(psi),
-                              "o1" = expression(omega),
-                              "K" = "K",
-                              "h1" = "h",
-                              "e1H" = expression(e[H]),
-                              "e1" = expression(e),
-                              "d" = "d",
-                              "c1" = "c",
-                              "b1" = expression(beta),
-                              "a1" = expression(alpha)))
-  #coord_flip()
+  labs(x = "Parameters", y = "Slope of pathogen biomass", fill = "Variation")+
+  scale_x_discrete(labels = param_labels)+
+  coord_flip()+
+  theme(axis.title.y = element_blank(), 
+        axis.text.y = element_blank()) 
+
+Sensitivity_S = 
+result_df %>%
+  # filter(value == "+5%") %>%
+  #mutate(parameter = paste(parameter, value)) %>%
+  ggplot()+
+  geom_col(mapping = aes(x = factor(parameter), y = S.slope, fill = value), position = "dodge")+
+  geom_hline(yintercept = Get_slope(parms)["S.slope"], color = "black", linetype = 2, linewidth = 1) +
+  labs(x = "Parameters", y = "Slope of plant biomass", fill = "Variation")+
+  scale_x_discrete(labels = param_labels)+
+  coord_flip()
   
-#Plotting initial abundance of H
+####Plotting initial abundance of H-----
 result_df %>%
   filter(value == "+5%") %>%
   #mutate(parameter = paste(parameter, value)) %>%
@@ -840,4 +861,16 @@ result_df %>%
                               "c1" = "c",
                               "b1" = expression(beta),
                               "a1" = expression(alpha)))
-ggsave("Sensitivity analysis variation.png", width = 15, height = 16, units = "cm", dpi = 800)
+
+
+####Patch work-----
+
+Sensitivity_S + Sensitivity_P + 
+  plot_layout(widths = c(0.2)) & 
+  theme(plot.tag = element_text(size = 10, face = "bold"))
+
+Sensitivity_S + Sensitivity_P + 
+  plot_layout(guides = "collect") & 
+  theme(legend.position = "bottom")
+
+ggsave("Result_1_2 Sensitivity analysis.png", width = 20, height = 12, units = "cm", dpi = 800) #15, 16

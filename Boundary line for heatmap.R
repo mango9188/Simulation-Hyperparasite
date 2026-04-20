@@ -240,4 +240,4 @@ f_E2H_State = function(m1, m2){
 comp_out$E2H_State = mapply(f_E2H_State, comp_out$m1, comp_out$m2)
 comp_out$E2H_State_V = ifelse(comp_out$E2H_State == "Stable", 1, 
                             ifelse(comp_out$E2H_State == "Unstable", 0, -1))
-View(comp_out)
+#View(comp_out)

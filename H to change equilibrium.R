@@ -69,7 +69,7 @@ ggplot(d = Data, mapping = aes(x = H_press, y = dH_dt))+
 
 View(Data)
 
-Data = readRDS(file = "m1 = 005, m2 = 001 from Ec to E2H")
+#Data = readRDS(file = "m1 = 005, m2 = 001 from Ec to E2H")
 
 # Even though we found the basin of attraction, we can not make use of it. More H is needed to make E_C become E_2H.
 
@@ -92,10 +92,10 @@ M2 <- function(times, state, parms) {
 times <- seq(0, 10000, by = 0.1)
 state <- c(H = 888888, P1H = 0.2333761, P2H = 0.1687427, P1 = 1.4767783, P2 = 0.4522385, S = 0.9095539)
 
-parms <- c(r = 1, K = 10,
-           a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
-           b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.01, e1H = 0.5, e2H = 0.5,
-           o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
+parms <- list(r = 1, K = 10,
+              a1 = 0.38, a2 = 0.51, psi1 = 0.8, psi2 = 0.8, e1 = 0.5, e2 = 0.5,
+              b1 = 0.2, b2 = 0.42, m1 = 0.05, m2 = 0.05, e1H = 0.5, e2H = 0.5,
+              o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.02, DL = 0) 
 
 H_press = seq(0.5, 5, by = 0.5)
 comp_out = data.frame(H_press,
@@ -209,7 +209,7 @@ H_series =
   H_series %>%
   mutate(delta_H = H_press - H)
 
-saveRDS(H_series, file = "H to change the equilibirum from Pre4A1 Press1")
+#saveRDS(H_series, file = "H to change the equilibirum ")
 
 # Run a for-loop with bisection method ----
 M2 <- function(times, state, parms) {
@@ -226,9 +226,10 @@ M2 <- function(times, state, parms) {
 
 ### Read the data to further subset different initial states and parameters
 P.space = 
-  readRDS("Pre4A1_forPSpace") %>%
+  readRDS("Pre4A1_d002_psi08_rev") %>%
+  #readRDS("Pre4A1_forPSpace") %>%
   filter(Stable_E == "P2H,C")
-P.space = P.space[,-c(9:11)]
+P.space = P.space[,-c(9:10)]
 P.space$H_press = 0
 head(P.space)
 
@@ -236,11 +237,15 @@ head(P.space)
 times <- c(0, 16000)
 state <- c(H = 0, P1H = 0, P2H = 0, P1 = 0, P2 = 0, S = 0)
 
+# parms <- c(r = 1, K = 10,
+#            a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
+#            b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.05, e1H = 0.5, e2H = 0.5,
+#            o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
+
 parms <- c(r = 1, K = 10,
            a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
            b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.05, e1H = 0.5, e2H = 0.5,
            o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.03, DL = 0)
-
 # parameter = expand_grid(P.space[, c("m1", "m2", "H", "P1H", "P2H", "P1", "P2", "S")])
 
 #function that will output the competition outcome
@@ -305,11 +310,11 @@ for (i in 1:dim(P.space)[1]) {
   
   #run with the bisection method
   P.space[i,]$H_press = Bisection_H(min_H = min(P.space[i, "H"]),
-                                    max_H = 25,
+                                    max_H = 40,
                                     state = temp_state,
                                     parms = temp_parms)
   if(i %% 10 == 0) print(paste0("Total: ", nrow(P.space), ", Now: ", i))
 }
 Ending_time = Sys.time()
 Ending_time - Start_time
-saveRDS(P.space, file = "H to change the equilibirum from Pre4A1 bisec 2")
+saveRDS(P.space, file = "")

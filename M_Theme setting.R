@@ -13,7 +13,7 @@ A =
     legend.text.align = 0)
 theme_set(A)
 
-#for ASS
+#for ASS-----
 unique_outcomes = unique(comp_out$Stable_E)
 # mycolor = c("C" = "#BA6338FF",
 #             "C,P1H" = "#80665DFF",
@@ -65,31 +65,7 @@ unique_outcomes = unique(comp_out$Stable_E)
 #   "C,P2H" = "#D66883" #pink
 #   )
 
-# mycolor <- c(
-#   "C" = "#4F4F4F",
-#   "U" = "#C7C7C7",
-#   "S" = "#00AF66",
-#   "P1" = "#BCAAA4",
-#   "P1H" = "#82491E",
-#   "P2" = "#B0BEC5",
-#   "P2H" = "#546E7A",
-#   "P1,P2" = "#B7AEA0",
-#   "P1H,P2H" = "#6A1B9A",
-#   "C,P1H" = "pink",
-#   "C,P2H" = "#C2185B")
 
-# mycolor <- c(
-#   "C" = "#5D4D5C",
-#   "U" = "#C7C7C7",
-#   "S" = "#00AF66",
-#   "P1" = "#F99BAF",
-#   "P1H" = "#c60c37",
-#   "P2" = "#68E1E1",
-#   "P2H" = "#0074AE",
-#   "P1,P2" = "#B7AEA0",
-#   "P1H,P2H" = "#6A1B9A",
-#   "C,P1H" = "pink",
-#   "C,P2H" = "#C155B8")
 
 mycolor <- c(
   "C" = "#BB7DBE", #BB7DBE #C155B8
