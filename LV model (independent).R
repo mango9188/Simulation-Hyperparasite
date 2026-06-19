@@ -16,11 +16,12 @@ M2 <- function(times, state, parms) {
 
 
 ### Model parameters ----
-times <- seq(0, 5000, by = 0.1)
-state <- c(H = 0.1, P1H = 0, P2H = 0, P1 = 0.01, P2 = 0.01, S = 0.1) 
+times <- seq(0, 1000, by = 0.1)
+state <- c(H = 0.01, P1H = 0, P2H = 0, P1 = 0.01, P2 = 0.01, S = 0.2) #EP2H
+state <- c(H = 0.1, P1H = 0, P2H = 0, P1 = 0.01, P2 = 0.01, S = 0.2) #EC
 parms <- list(r = 1, K = 10,
               a1 = 0.38, a2 = 0.51, psi1 = 0.8, psi2 = 0.8, e1 = 0.5, e2 = 0.5,
-              b1 = 0.2, b2 = 0.42, m1 = 0.02, m2 = 0.01, e1H = 0.5, e2H = 0.5,
+              b1 = 0.2, b2 = 0.42, m1 = 0.06, m2 = 0.015, e1H = 0.5, e2H = 0.5,
               o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.02, DL = 0)
 
 
@@ -38,10 +39,10 @@ pop_size %>%
   pivot_longer(cols = c("H", "P1H", "P2H", "P1", "P2", "S"), #"H", "P1H", "P2H", "P1", "P2", "S" 
              names_to = "species", values_to = "biomass") %>%
   ggplot(mapping = aes(x = time, y = biomass, color = species)) +
-  labs(x = "Time", y = "Abundance") + #title = expression(P[1]~"win") paste0("r =", parms["r"])) expression(α[1] == 0.35)+ #title = expression(α[1] == 0.35 ~","~ β[1] == 0.2 ) title = expression(P[1[0]] == 1
+  labs(x = "Time", y = "Biomass") + #title = expression(P[1]~"win") paste0("r =", parms["r"])) expression(α[1] == 0.35)+ #title = expression(α[1] == 0.35 ~","~ β[1] == 0.2 ) title = expression(P[1[0]] == 1
   geom_line(lwd = 1) +
   #geom_hline(yintercept = 0.05683562, color = "black", linetype = "dashed", linewidth = 1) +
-  scale_y_continuous(limits = c(0, 8))+
+  #scale_y_continuous(limits = c(0, 8))+
   scale_colour_manual(values = State_values, labels = State_labels)+
                         guides(color = guide_legend(nrow = 1)) +
                         theme(legend.position = "bottom", 
@@ -49,6 +50,7 @@ pop_size %>%
   #scale_x_log10()
 
 ggsave("ESJ ini_2 E1HorE2H P2wins.png", width = 20, height = 11.25, units = "cm", dpi = 800)
+ggsave("15minTalk EP2H.png", width = 11.25, height = 11.25, units = "cm", dpi = 800)
 View(pop_size)
 sd(pop_size[(nrow(pop_size)-round(length(times)*0.35)):nrow(pop_size),"S"]) > 1e-8
 

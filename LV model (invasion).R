@@ -27,7 +27,7 @@ P2_invade = function(times, state, parms){
 ### H invasion-----
 H_invasion = function(times, state, parms){
   with(as.list(c(state, parms)), {
-    H = H + 8
+    H = H + 7
     P1H = P1H
     P2H = P2H
     P1 = P1
@@ -39,11 +39,13 @@ H_invasion = function(times, state, parms){
 
 .
 #time-----
-times = seq(0, 7000, by = 0.1)
+times = seq(0, 3000, by = 0.1)
 
 #state----
 ini_High_H <- c(H = 1, P1H = 0, P2H = 0, P1 = 0.01, P2 = 0.01, S = 0.5) #ini_1 (P1win)
 ini_Low_H <- c(H = 0.01, P1H = 0, P2H = 0, P1 = 0.01, P2 = 0.01, S = 0.5) #ini_2 (P2win)
+
+
 
 #parms----
 # parms_E1H_E2H = 
@@ -87,22 +89,23 @@ TimeSeries = function(times, state, parms){
   pop_size %>%
     as.data.frame() %>%
     filter(time %% 1 == 0) %>%
+    tail()
     #filter(time <= 500 | time >= 4500) %>% 
     #mutate(Time_Window = ifelse(time <= 500, "Transient", "Equilibrium")) %>%
     #mutate(Time_Window = factor(Time_Window, levels = c("Transient", "Equilibrium"))) %>%
-    pivot_longer(cols = c("H", "P1H", "P2H", "P1", "P2", "S"),
-                 names_to = "species", values_to = "biomass") %>%
-    ggplot(mapping = aes(x = time, y = biomass, color = species)) +
-    labs(x = "Time", y = "Abundance") +
-    geom_line(lwd = 1) +
-    #facet_wrap(~ Time_Window, scales = "free_x") +
-    scale_y_continuous(limits = c(0, 9.5))+
-    scale_colour_manual(labels = State_labels,
-                        values = State_values)+
-    theme(
-      strip.background = element_blank(),
-      strip.text = element_blank(),
-      panel.spacing = unit(0.2, "lines"))
+    # pivot_longer(cols = c("H", "P1H", "P2H", "P1", "P2", "S"),
+    #              names_to = "species", values_to = "biomass") %>%
+    # ggplot(mapping = aes(x = time, y = biomass, color = species)) +
+    # labs(x = "Time", y = "Abundance") +
+    # geom_line(lwd = 1) +
+    # #facet_wrap(~ Time_Window, scales = "free_x") +
+    # scale_y_continuous(limits = c(0, 9.5))+
+    # scale_colour_manual(labels = State_labels,
+    #                     values = State_values)+
+    # theme(
+    #   strip.background = element_blank(),
+    #   strip.text = element_blank(),
+    #   panel.spacing = unit(0.2, "lines"))
 }
 TimeSeriesInvasion = function(times, state, parms, InvasionTimes){
   M2 <- function(times, state, parms) {
@@ -145,7 +148,7 @@ TimeSeries(times, ini_Low_H, parms_EC_E2H)  #E2H
 TimeSeries(times, ini_High_H, parms_E1H_E2H) #E1H
 TimeSeries(times, ini_Low_H, parms_E1H_E2H) #E2H
 
-TimeSeriesInvasion(times, ini_High_H, parms_EC_E2H, InvasionTimes = c(4000)) #Coexist -> EP2H
+Invasion = TimeSeriesInvasion(times, ini_High_H, parms_EC_E2H, InvasionTimes = c(2000)) #Coexist -> EP2H
 TimeSeriesInvasion(times, ini_Low_H, parms_EC_E2H, InvasionTimes = c(10)) #EP2H -> Coexist
 
 TimeSeriesInvasion(times, ini_High_H, parms_E1H_E2H, InvasionTimes = c(150)) #EP1H -> EP2H (if H = H+5)

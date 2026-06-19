@@ -213,7 +213,7 @@ ggplot(filter(comp_out), aes(x = m1, y = m2, z = Stable_E, fill = Stable_E)) +
 ggsave("Heatmap of m1 and m2.png", width = 16, height = 11, units = "cm", dpi = 1600)
 
 ############Plot the heatmap for m (fill with S value)-----------------
-ggplot(comp_out, aes(x = m1, y = m2, fill = P1+P1H)) +
+ggplot(comp_out, aes(x = m1, y = m2, fill = S)) +
   geom_tile() +
   labs(title = expression(), x = expression(m[1]), y = expression(m[2]))+
   scale_fill_gradient2(high = "#a50f15",
@@ -411,15 +411,15 @@ ggplot(D, aes(x = m, y = Abundance, color = Species)) +
 D = 
   comp_out %>%
   select(c(m1, m2, P1, P2, P1H, P2H, H, S)) %>% #P1, P2, P1H, P2H, H, S
-  #filter(round(m1, 5) == 0.07) %>%
+  filter(round(m2, 5) == 0.04) %>%
   pivot_longer(names_to = "Species", values_to = "Abundance", -c(m1, m2))
 #gather(key = Species, value = Abundance, -c(a1, r)) %>% #using gather()
 
-ggplot(D, aes(x = m2, y = Abundance, color = Species)) +
-  geom_line(filter(D, Species != "total"), mapping = aes(x = m2, y = Abundance, color = Species), lwd = 1) +
+ggplot(D, aes(x = m1, y = Abundance, color = Species)) +
+  geom_line(filter(D, Species != "total"), mapping = aes(x = m1, y = Abundance, color = Species), lwd = 1) +
   #geom_line(filter(D, Species == "total"), mapping = aes(x = m1, y = Abundance, color = Species), lwd = 0.8, linetype = 2) +
   #scale_linetype_manual(values = c("Stable" = "solid", "Unstable" = "dashed")) +
-  labs(title = expression(m[1] == 0.085), x = expression(m[2]), y = "Abundance", color = "Species")+
+  labs(x = expression(m[1]), y = "Abundance", color = "Species")+
   scale_y_continuous() +
   scale_x_continuous() + #breaks = c(seq(0.2, 1, by = 0.2))
   scale_colour_manual(labels = State_labels,

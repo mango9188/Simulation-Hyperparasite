@@ -18,10 +18,10 @@ times <- seq(0, 6000, by = 0.1)
 #state <- c(H = 1, P1H = 0, P2H = 0, P1 = 2, P2 = 2, S = 5)
 state <- c(H = 0.1, P1 = 0.1, S = 0.2)
 #Change alpha and beta--
-parms <- c(r = 1, K = 10,
-           a1 = 0.35, psi1 = 1, e1 = 0.5,
-           b1 = 0.2, m1 = 0.8, e1H = 0.5,
-           o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.03, DL = 0)
+parms = list(
+  r = 1, K = 10,
+  a1 = 0.25, e1 = 0.5, 
+  o1 = 0.8, h1 = 1, d = 0.01)
 
 comp_out = expand.grid(m1 = seq(0, 1, by = 0.1))
 
@@ -63,13 +63,22 @@ comp_out %>%
   pivot_longer(names_to = "Species", values_to = "Abundance", -c(m1)) %>%
   ggplot(aes(x = m1, y = Abundance, color = Species)) +
   geom_line(lwd = 1) + 
-  labs(x = "Intrinsic mortality rate of pathogen (m)", y = "Abundance", color = "Species")+
+  labs(x = "Intrinsic mortality rate of pathogen (m)", y = "Biomass", color = "Species")+
+  # scale_colour_manual(labels =
+  #                       c("P1" = "Pathogen", "P1H" = expression(P[1/H]),
+  #                         "S" = "Host", "H" = "Predator", "Total" = "Total"),
+  #                     values = c("P1" = "#BCAAA4", "P1H" = "#82491E",
+  #                                "S" = "#00AF66", "H" = "#C03728", "Total" = "blue"))
   scale_colour_manual(labels =
-                        c("P1" = "Pathogen", "P1H" = expression(P[1/H]),
-                          "S" = "Host", "H" = "Predator", "Total" = "Total"),
-                      values = c("P1" = "#BCAAA4", "P1H" = "#82491E",
-                                 "S" = "#00AF66", "H" = "#C03728", "Total" = "blue"))
+                        c("P1" = "P",
+                          "S" = "S",
+                          "H" = "T"),
+                      values = c("H" = "#D6B701", 
+                                 "P1" = alpha("#a50f15", 0.4),
+                                 "S" = "#00AF66"))
+
 #title = "With predator"
-ggsave("ESJ predator.png", width = 20, height = 11, units = "cm", dpi = 800)
+#ggsave("ESJ predator.png", width = 20, height = 11, units = "cm", dpi = 800)
+ggsave("Appendix_2 Predator Bifurcation plot.png", width = 20, height = 11, units = "cm", dpi = 800)
 ##Save the simulation result
 #saveRDS(comp_out, "SS2")

@@ -103,35 +103,37 @@ outcome_labels <- c(
   "U" = "Unstable"
 )
 
-outcome_labels <- c(
-  "C" = "Coexistence",
-  "C,P1H" = expression("Coexistence or"~ P[1]~ "wins with H"),
-  "C,P2H" = expression("Coexistence or"~ P[2]~ "wins with H"),
-  "P1H,P2H" = expression(P[1]~ "wins with H or" ~ P[2]~ "wins with H"),
-  "P1,P2" = expression(P[1]~ "wins or" ~ P[2]~ "wins"),
-  "P2,P1H" = expression(P[2]~ "wins or"~ P[1]~ "wins with H"),
-  "P1H" = expression(P[1]~ "wins with H"),
-  "P1" = expression(P[1] ~ "wins"),
-  "P2H" = expression(P[2]~ "wins with H"),
-  "P2" = expression(P[2] ~ "wins"),
-  "S" = "Host only",
-  "U" = "Unstable"
-)
+# outcome_labels <- c(
+#   "C" = "Coexistence",
+#   "C,P1H" = expression("Coexistence or"~ P[1]~ "wins with H"),
+#   "C,P2H" = expression("Coexistence or"~ P[2]~ "wins with H"),
+#   "P1H,P2H" = expression(P[1]~ "wins with H or" ~ P[2]~ "wins with H"),
+#   "P1,P2" = expression(P[1]~ "wins or" ~ P[2]~ "wins"),
+#   "P2,P1H" = expression(P[2]~ "wins or"~ P[1]~ "wins with H"),
+#   "P1H" = expression(P[1]~ "wins with H"),
+#   "P1" = expression(P[1] ~ "wins"),
+#   "P2H" = expression(P[2]~ "wins with H"),
+#   "P2" = expression(P[2] ~ "wins"),
+#   "S" = "Host only",
+#   "U" = "Unstable"
+# )
 
-outcome_labels <- c(
-  "C" = expression(P[1] + P[2] + H),
-  "C,P1H" = expression(P[1] + P[2] + H ~"/"~~ P[1] + H),
-  "C,P2H" = expression(P[1] + P[2] + H ~"/"~~ P[2] + H),
-  "P1H,P2H" = expression(P[1] + H ~"/"~~ P[2] + H),
-  "P1,P2" = expression(P[1] ~"/"~~ P[2]),
-  "P2,P1H" = expression(P[2] ~"/"~~ P[1] + H),
-  "P1H" = expression(P[1] + H),
-  "P1" = expression(P[1]),
-  "P2H" = expression(P[2]+ H),
-  "P2" = expression(P[2]),
-  "S" = "S",
-  "U" = "Unstable"
-)
+# ##This one is for present!!!!
+# outcome_labels <- c(
+#   "C" = expression(P[1] + P[2] + H),
+#   "C,P1H" = expression(P[1] + P[2] + H ~"/"~~ P[1] + H),
+#   "C,P2H" = expression(P[1] + P[2] + H ~"/"~~ P[2] + H),
+#   "P1H,P2H" = expression(P[1] + H ~"/"~~ P[2] + H),
+#   "P1,P2" = expression(P[1] ~"/"~~ P[2]),
+#   "P2,P1H" = expression(P[2] ~"/"~~ P[1] + H),
+#   "P1H" = expression(P[1] + H),
+#   "P1" = expression(P[1]),
+#   "P2H" = expression(P[2]+ H),
+#   "P2" = expression(P[2]),
+#   "S" = "S",
+#   "U" = "Unstable"
+# )
+
 # 
 # outcome_labels <- c(
 #   "C" = expression("All coexist"),
@@ -152,16 +154,16 @@ outcome_labels <- c(
 State_labels = c("H" = "H",
                  "P1" = expression(P[1]),
                  "P1H" = expression(P[1/H]),
-                 "P1T" = expression(P[1]~"total"), #P1+P1H
+                 "P1T" = expression(P[1] + P[1/H]), #P1+P1H
                  "P2" = expression(P[2]),
                  "P2H" = expression(P[2/H]), 
-                 "P2T" = expression(P[2]~"total"), #P2+P2H
+                 "P2T" = expression(P[2] + P[2/H]), #P2+P2H
                  "S" = "S")
 
 State_labels_SS = c("H" = "H",
                  "P1" = expression(P),
                  "P1H" = expression(P[H]),
-                 "P.total" = "P.total",
+                 "P.total" = expression(P + P[H]),
                  "S" = "S")
 
 # State_labels = c("H" = "Hyperparasite",

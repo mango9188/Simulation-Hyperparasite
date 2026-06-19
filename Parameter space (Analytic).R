@@ -1,10 +1,10 @@
 #Using analytic method to expand parameter space----
 ##Expanding parameter space----
 #### Parameter sets----
-parms <- list(r = 1, K = 10,
-              a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
-              b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.05, e1H = 0.5, e2H = 0.5,
-              o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.028, DL = 0) #d = 0.03
+# parms <- list(r = 1, K = 10,
+#               a1 = 0.35, a2 = 0.5, psi1 = 1, psi2 = 1, e1 = 0.5, e2 = 0.5,
+#               b1 = 0.2, b2 = 0.45, m1 = 0.05, m2 = 0.05, e1H = 0.5, e2H = 0.5,
+#               o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.028, DL = 0) #d = 0.03
 
 parms <- list(r = 1, K = 10,
               a1 = 0.38, a2 = 0.51, psi1 = 0.8, psi2 = 0.8, e1 = 0.5, e2 = 0.5,
@@ -12,8 +12,8 @@ parms <- list(r = 1, K = 10,
               o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.02, DL = 0) #biggest alternative stable states
 
 comp_out = expand.grid(
-                       m1 = 0.085,
-                       m2 = seq(0.001, 0.1, by = 0.001))
+                       m1 = 0.06,
+                       m2 = seq(0.001, 0.1, by = 0.0001))
 
 #### Create data frame----
 comp_out <- as.data.frame(cbind(comp_out,
@@ -280,5 +280,5 @@ comp_out$Outcome2 = apply(comp_out[, c("H", "P1H", "P2H", "P1", "P2")], 1, funct
 })
 comp_out[which(comp_out$Stable_E == ""), "Stable_E"] = "U"
 
-# saveRDS(comp_out, "Pre4A1_d002_psi08_same m")
+saveRDS(comp_out, "Pre4A1_d002_psi08_ForBif_Rev (m1 006)")
 View(comp_out)

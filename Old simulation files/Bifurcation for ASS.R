@@ -227,7 +227,7 @@ text_df <- data.frame(
   y = 4.34,
   # geom_text -> parse = TRUE
   #label = c("P[1]*H ~~ 'wins'", "'All coexist' ~~'||'~~ P[2]*H ~~ 'wins'", "P[2]*H ~~ 'wins'"),
-  label = c("P[1] + H ", "P[1] + P[2] + H", "P[2] + H"),
+  label = c("P[1] + H ", "P[1] + P[2] + H / P[2] + H", "P[2] + H"),
   text_color = c("white", "white", "white"),
   Group = "1"  # the text will only show on group 1
 )
@@ -244,7 +244,7 @@ ggplot()+
             parse = TRUE, size = 4, inherit.aes = FALSE, show.legend = FALSE) +
   
   geom_point(filter(DataC), mapping = aes(x = m1, y = Abundance, color = Species))+
-  labs(x = expression("Intrinsic mortality rate of pathogen strain 1"~ (m[1])), y = "Abundance", color = "Species")+
+  labs(x = expression(P[1]*"'s mortality rate increased by pesticide"), y = "Biomass", color = "Species")+
   ylim(c(0, 4.8))+
   facet_grid(Group ~ ., scales = "fixed")+ #fixed
   #guides(linetype = FALSE)+
@@ -252,7 +252,7 @@ ggplot()+
   theme(strip.background = element_blank(),
         strip.text = element_blank(),
         axis.title.y.right = element_text(angle = 90),
-        legend.position = "bottom")
+        legend.position = "right")
   #scale_linetype_manual(values = c("Forward" = 1, "Reverse" = 1))
   #scale_shape_manual(values = c("Forward" = 19, "Reverse" = 2))
   #scale_alpha_manual(values = c("Forward" = 1, "Reverse" = 0.5))+
@@ -294,3 +294,4 @@ ggplot()+
         panel.border = element_rect(color = "black", fill = NA))
 
 ggsave("Multi strain bifurcation m same.png", width = 20, height = 13, units = "cm", dpi = 800)
+ggsave("Poster multistrain bifur.png", width = 19, height = 13, units = "cm", dpi = 800)
