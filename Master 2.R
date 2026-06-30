@@ -524,8 +524,6 @@ for (i in names(unlist(parms))) {
 end_time = Sys.time()
 end_time - start_time
 
-
-
 result_df = do.call(rbind, result_list)
 
 ## Plotting relative slope (compared to the original parameter set)----
@@ -1134,7 +1132,7 @@ design <- "
 "
 P1 = P_space_S_SPP + labs(tag = "(A)")
 P2 = P_space_S_SPPH + guides(fill = "none") + labs(tag = "(B)")
-P3 = P_space_S_SPPH_rev + theme(axis.title.y = element_blank(), axis.text.y = element_blank())
+P3 = P_space_S_SPPH_rev + theme(axis.title.y = element_blank(), axis.text.y = element_blank()) + labs(tag = "(C)")
 
 
 p_left + plot_spacer() + p_right + 
@@ -1144,10 +1142,11 @@ p_left + plot_spacer() + p_right +
 
 (P1 + plot_spacer())/(P2 + P3 + plot_spacer())
 
-P1+P2+P3+plot_layout(design = design, axes = "collect") & theme(plot.tag = element_text(size = 15, face = "bold"))
+P1+P2+P3+plot_layout(design = design, axes = "collect") & theme(plot.tag = element_text(size = 12, face = "bold"))
 
 
-ggsave("Result_3 Multi strain parameterspace (S value) with and without H (LABEL).png", width = 25, height = 25, units = "cm", dpi = 800) 
+ggsave("Result_3 Multi strain parameterspace (S value) with and without H (LABEL).png", width = 25, height = 25, units = "cm", dpi = 800)
+ggsave("Result_3 Multi strain parameterspace (S value) with and without H (LABEL).png", width = 27.5, height = 27.5, units = "cm", dpi = 800) 
 # Result 3_2: Bifurcation plot of multi-strain system ----
 
 
@@ -1227,7 +1226,8 @@ text_df <- data.frame(
 )
 
 DataC = rbind(D, D2, D3, D4)
-
+DataC = rbind(D, D3)
+DataC = rbind(D2, D4)
 ggplot()+
   geom_rect(data = rect_df,
             aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = fill_color),
@@ -1237,7 +1237,7 @@ ggplot()+
             aes(x = x, y = y, label = label, color = I(text_color)), # Using I() to hide legend
             parse = TRUE, size = 4, inherit.aes = FALSE, show.legend = FALSE) +
   
-  geom_point(filter(DataC), mapping = aes(x = m1, y = Abundance, color = Species))+
+  geom_point(filter(DataC), mapping = aes(x = m1, y = Abundance, color = Species), size = 0.8)+
   labs(x = expression("Intrinsic mortality rate of mild strain"~(m[1])), y = "Biomass", color = "Species")+
   ylim(c(0, 4.8))+
   facet_grid(Group ~ ., scales = "fixed")+ #fixed
@@ -1246,9 +1246,14 @@ ggplot()+
   theme(strip.background = element_blank(),
         strip.text = element_blank(),
         axis.title.y.right = element_text(angle = 90),
-        legend.position = "bottom")
+        legend.position = "bottom",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())
 
-ggsave("Result_3_2 Bifurcation plot of multi-strain system fix m2.png", width = 20, height = 13, units = "cm", dpi = 800)
+#ggsave("Result_3_2 Bifurcation plot of multi-strain system fix m2.png", width = 20, height = 13, units = "cm", dpi = 800)
+#ggsave("Defense multi-strain Bifurcation plot (For).png", width = 20, height = 13, units = "cm", dpi = 800)
+#ggsave("Defense multi-strain Bifurcation plot (Rev).png", width = 20, height = 13, units = "cm", dpi = 800)
+ggsave("Defense multi-strain Bifurcation plot (All).png", width = 20, height = 13, units = "cm", dpi = 800)
 ###########################################################fix m1
 comp_out2 =
   readRDS("Pre4A1_d002_psi08_ForBif_Rev (m1 006)")
@@ -1471,7 +1476,7 @@ TimeSeriesInvasion = function(times, state, parms, InvasionTimes){
   pop_size %>%
     as.data.frame() %>%
     # filter(time %% 1 == 0) %>%
-    # filter(time <= 500 | time >= 4500) %>% 
+    filter(time >= 2400 & time <= 2700) %>% 
     # mutate(Time_Window = ifelse(time <= 500, "Transient", "Equilibrium")) %>%
     # mutate(Time_Window = factor(Time_Window, levels = c("Transient", "Equilibrium"))) %>%
     pivot_longer(cols = c("H", "P1H", "P2H", "P1", "P2", "S"),
@@ -1487,9 +1492,9 @@ TimeSeriesInvasion = function(times, state, parms, InvasionTimes){
     theme(
       strip.background = element_blank(),
       strip.text = element_blank(),
-      panel.spacing = unit(0.2, "lines"),
-      axis.title.y = element_blank(), 
-      axis.text.y = element_blank())
+      panel.spacing = unit(0.2, "lines"))
+      #axis.title.y = element_blank(), 
+      #axis.text.y = element_blank())
 }
 
 Invasion = TimeSeriesInvasion(times, Initial, parms_EC_E2H, InvasionTimes = c(2500))
@@ -1504,7 +1509,8 @@ Disturbance + labs(tag = "(A)") + Invasion + labs(tag = "(B)") +
   theme(legend.position = "bottom", plot.tag = element_text(size = 15, face = "bold"))
 
 #ggsave("Poster P and D.png", width = 20, height = 16, units = "cm", dpi = 800)
-ggsave("Result_4_1 Time sereies perturbation and disturbance (LABEL).png", width = 22, height = 17.6, units = "cm", dpi = 800) #15, 16
+#ggsave("Result_4_1 Time sereies perturbation and disturbance (LABEL).png", width = 22, height = 17.6, units = "cm", dpi = 800) #15, 16
+ggsave("APPENDIX Result_4_1 Time sereies perturbation.png", width = 22, height = 17.6, units = "cm", dpi = 800) #15, 16
 
 
 ## 4_2 H_press to flip equilibrium along the parameter space ----
@@ -1858,3 +1864,212 @@ ggplot(data = D, mapping = aes(x = b2, y = S, color = Equilibrium))+
   theme(legend.position = "bottom")
 
 ggsave("Appendix E_P2H is greater than E_C.png", width = 10, height = 10, units = "cm", dpi = 800)
+
+
+##APPENDIX bifurcation plot of predator
+### ODE setup----
+Model <- function(times, state, parms) {
+  with(as.list(c(state, parms)), {
+    dH_dt = (h1 * o1 * P1 * H) - (m1 * H)
+    dP1_dt = e1 * a1 * P1 * S - o1 * P1 * H - m1 * P1
+    dS_dt = r * S * (1-S/K) - a1 * P1 * S 
+    return(list(c(dH_dt, dP1_dt, dS_dt)))
+  })
+}
+
+### Model parameters ----
+
+times <- seq(0, 6000, by = 0.2)
+state <- c(H = 0.1, P1 = 0.1, S = 0.2)
+parms = list(
+  r = 1, K = 10,
+  a1 = 0.25, e1 = 0.5, 
+  o1 = 0.8, h1 = 1, d = 0.5)
+
+comp_out = expand.grid(m1 = seq(0.01, 1, by = 0.01))
+
+### Create saving space for simulation output----
+comp_out <- as.data.frame(cbind(comp_out,
+                                matrix(0, 
+                                       nrow = dim(comp_out)[1],
+                                       ###dim(data)[1] is the number of row of data; [2] is col
+                                       ncol = length(state))))
+names(comp_out) <- c("m1", "H", "P1", "S")
+
+
+### Simulate the ODE across the parameter space----
+start_time <- Sys.time()
+for(i in 1:dim(comp_out)[1]){
+  
+  temp_parms = parms
+  temp_parms["m1"] <- comp_out[i, ]$m1
+  
+  temp_out <- ode(func = Model, 
+                  times = times, 
+                  y = state, 
+                  parms = temp_parms)
+  
+  N_final <- nrow(temp_out)
+  comp_out[i, 2:4] = temp_out[N_final, -1]
+}
+end_time <- Sys.time()
+end_time - start_time
+
+
+###Plot the result----
+comp_out %>%
+  select(c(m1, H, P1, S, P1)) %>%
+  pivot_longer(names_to = "Species", values_to = "Abundance", -c(m1)) %>%
+  ggplot(aes(x = m1, y = Abundance, color = Species)) +
+  geom_line(lwd = 1) + 
+  labs(x = "Intrinsic mortality rate of pathogen and predator (m = d)", y = "Biomass", color = "Species")+
+  scale_colour_manual(labels =
+                        c("P1" = "P",
+                          "S" = "S",
+                          "H" = "T"),
+                      values = c("H" = "#D6B701", 
+                                 "P1" = alpha("#a50f15", 0.4),
+                                 "S" = "#00AF66"))+
+  geom_vline(xintercept = 0.898, color = "black", linetype = 2, linewidth = 0.7)
+#ggsave("Appendix Predator Bifurcation plot.png", width = 20, height = 11, units = "cm", dpi = 800)
+
+ggsave("Appendix Predator Bifurcation plot (m eq d).png", width = 20, height = 11, units = "cm", dpi = 800)
+
+
+##Defense ----
+SS_model <- function(times, state, parms) {
+  with(as.list(c(state, parms)), {
+    dH_dt = (h1 * o1 * P1H) - (c1 * b1 * P1) * H - (d * H)
+    dP1H_dt = (b1 * P1 * H) - (o1 + m1) * P1H
+    dP1_dt = (e1 * a1 * P1) * S - (b1 * P1) * H + (e1H * a1 * P1H * S) - m1 * P1
+    dS_dt = r * S * (1-S/K) - (a1 * P1 + a1 * P1H) * S 
+    return(list(c(dH_dt, dP1H_dt, dP1_dt, dS_dt)))
+  })
+} #Parasite invasion
+State_vars <- c(H = 0.1, P1H = 0, P1 = 0.01, S = 0.1)
+State_character <- c("inv", "inv", "res", "res")
+#### initial population of invaders
+Inv_init <- 10^-10
+#### simulation time length and resolution
+Time <- seq(0, 1250, by = 0.1)
+#### parms
+parms = list(
+  r = 1, K = 10,
+  a1 = 0.25, psi1 = 1, e1 = 0.5, 
+  b1 = 0.2, e1H = 0.5, m1 = 0.01,
+  o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.01)
+
+Numeric_IGR <- function(state_vars, state_character, model, params, inv_init, time){
+  
+  #### monoculture of resident
+  state_mono <- state_vars
+  state_mono[state_character == "res"] <- 1
+  state_mono[state_character == "inv"] <- 0
+  mono_resid <-
+    ode(y = state_mono,
+        times = seq(0, 10000, by = 0.1),
+        func = model,
+        parms = params)
+  
+  #### If you need to check monoculture, return this:
+  #return(tail(mono_resid))
+  
+  mono_resid <- mono_resid %>%
+    tail(1) %>%
+    as.data.frame() %>%
+    select(-time) %>%
+    as.numeric()
+  
+  
+  ### Set up
+  N1.init <- inv_init
+  # Create solutions for different stage structure initial
+  p2.init <- c(0.4, 0.5, 0.6) #0.4, 0.5, 0.6 
+  
+  all.sols <- 
+    data.frame(p2.init = p2.init) %>%
+    mutate(State = map(p2.init,
+                       function(y){
+                         x <- state_vars * 0
+                         x[state_character == "inv"][1:2] <- c(N1.init*(1-y), N1.init*y)
+                         x[state_character == "res"] <- mono_resid[state_character == "res"]
+                         return(x)})) %>%
+    mutate(sol = map(State,
+                     ~as.data.frame(ode(
+                       y = .x,
+                       times = time,
+                       func = model,
+                       parms = params))))
+  
+  #### Function to calculate effective per-capita growth
+  total.growth <- function(State) {
+    with(as.list(State),{
+      dN <- model(0, state = State, params)[[1]]
+      inv <- state_character == "inv"
+      result <- sum(dN[inv]) / sum(State[inv])
+      return(result)
+    })
+  }
+  
+  # Calculate per capita growth rate at each time step
+  pcap.df <- 
+    all.sols %>%
+    unnest(sol) %>%
+    mutate(State = pmap(select(., -p2.init, -State, -time), ~ c(...))) %>%
+    mutate(gr1 = map(State, total.growth) %>% unlist())
+  
+  
+  #### Attempt to numerically find the position of IGR
+  # Find the CV (coefficient of variation) among the three different initial proportions
+  CV <-
+    pcap.df %>% 
+    select(p2.init, time, gr1) %>% 
+    pivot_wider(names_from = p2.init, values_from = gr1) %>%
+    select(-time) %>%
+    mutate(VEC = pmap(., ~c(...))) %>% 
+    mutate(SD = map(VEC, sd)) %>% 
+    mutate(MEAN = map(VEC, mean)) %>% 
+    mutate(CV = map2(SD, MEAN, function(x,y){x/y})) %>%
+    pull(CV) %>%
+    unlist() %>% 
+    abs()
+  
+  # Find position within time series with minimum CV value
+  # This is when the solutions converge at a non-zero value
+  want <- which.min(CV)
+  
+  # If you need to visualize and check results, run the following lines
+  plot <- ggplot(pcap.df, aes(time, gr1, color = factor(p2.init))) +
+    geom_line(linewidth = 1)+
+    labs(x = "Time", y = "Invasion growth rate", color = expression("Initial Ratio of H and" ~ P[H]))+
+    theme(legend.position = "bottom")
+  return(plot)
+  
+  # If you need to visualize and check results, run the following lines
+  # plot(CV)
+  # text(max(min(want, length(CV)*0.8), length(CV)*0.2), max(CV)/2,
+  #      labels = paste("Converge at step", want))
+  
+  
+  # Extract per capita growth rate at this position
+  Rate <- 
+    pcap.df %>%
+    select(p2.init, time, gr1) %>% 
+    group_by(time) %>% 
+    summarise(growth_rate = mean(gr1)) %>%
+    pull(growth_rate)
+  result_num_IGR <- Rate[want]
+  
+  return(result_num_IGR)
+  
+  ### If you need the raw ODE process, return this one instead
+  #return(pcap.df)
+}
+Numeric_IGR(state_vars = State_vars,
+            state_character = State_character,
+            model = SS_model,
+            param = parms,
+            inv_init = Inv_init,
+            time = Time)
+ggsave("Invasion growth rate of H and PH (2).png", width = 17, height = 12, units = "cm", dpi = 800)
+

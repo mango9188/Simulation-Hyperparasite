@@ -14,15 +14,19 @@ M2_S <- function(times, state, parms) {
 
 ### Model parameters ----
 
-times <- seq(0, 10000, by = 0.1)
+times <- seq(0, 1250, by = 0.1)
 #state <- c(H = 1, P1H = 0, P1 = 2, S = 5)
-state <- c(H = 0.01, P1H = 0, P1 = 0.01, S = 0.2)
+state <- c(H = 10^-10, P1H = 0, P1 = 4.104448, S = 0.07132019)
 #Change alpha and beta--
-parms <- c(r = 1, K = 10,
-           a1 = 0.38, psi1 = 0.8, e1 = 0.5,
-           b1 = 0.2, m1 = 0.05, e1H = 0.5,
-           o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.02, DL = 0, m1H = 0.01)
-
+# parms <- c(r = 1, K = 10,
+#            a1 = 0.38, psi1 = 0.8, e1 = 0.5,
+#            b1 = 0.2, m1 = 0.05, e1H = 0.5,
+#            o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.02, DL = 0, m1H = 0.01)
+parms = list(
+  r = 1, K = 10,
+  a1 = 0.25, psi1 = 1, e1 = 0.5, 
+  b1 = 0.2, e1H = 0.5, m1 = 0.01,
+  o1 = 0.8, h1 = 1, c1 = 0.9, d = 0.01, DL = 0)
 
 ### Model application ----
 pop_size = ode(func = M2_S, times = times, y = state, parms = parms)
@@ -33,21 +37,21 @@ tail(pop_size, 1)
 ## Plotting
 pop_size %>%
   as.data.frame() %>%
-  filter(time %% 1 == 0) %>%
-  #filter(time > 1000, time < 5000) %>%
+  #filter(time %% 1 == 0) %>%
+  #filter(time > 0.1) %>%
+  mutate(Ratio = H/P1H) %>%
   #View()
   pivot_longer(cols = c("H", "P1H", "P1", "S"), #"H", "P1H", "P1", "S" 
                names_to = "species", values_to = "biomass") %>%
-  #filter(species == c("H","S")) %>%
+  #filter(species == c("Ratio")) %>%
   ggplot(mapping = aes(x = time, y = biomass, color = species)) +
-  labs(x = "Time", y = "Biomass", title = paste0("α = ", parms["a1"], ", β = ", parms["b1"])) +  #paste0("r =", parms["r"]))β
+  labs(x = "Time", y = expression("Biomass"), color = "Species") +  #paste0("r =", parms["r"]))β  title = paste0("α = ", parms["a1"], ", β = ", parms["b1"])
   geom_line(lwd = 1) +
-  scale_colour_manual(labels = c("H" = "Hyper", "P1" = expression(P[1]), 
-                                 "P1H" = expression(P[1/H]), "S" = "Host"),
-                      values = c("H" = "#C03728", "P1" = "#BCAAA4", 
-                                 "P1H" = "#82491E", "S" = "#00AF66"))
-
-## Plotting the per capita growth rate
+  scale_colour_manual(labels = State_labels_SS,
+                      values = State_values)
+ggsave("Invasion of H and PH (biomass).png", width = 17, height = 12, units = "cm", dpi = 800)
+0
+## Plotting the per capita growth rate-------------
 pop_size %>%
   as.data.frame() %>%
   filter(time %% 1 == 0) %>%
