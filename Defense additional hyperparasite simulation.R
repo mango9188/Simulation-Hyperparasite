@@ -122,7 +122,7 @@ anim_save(filename = ".gif", GIF)
 ## H invasion----
 H_invasion = function(times, state, parms){
   with(as.list(c(state, parms)), {
-    H = H + 5.3
+    H = H + 3
     P1H = P1H
     P2H = P2H
     P1 = P1
@@ -132,13 +132,13 @@ H_invasion = function(times, state, parms){
   })
 }
 
-times = seq(0, 5000, by = 0.1)
+times = seq(5000, 10000, by = 0.1)
 #Initial = c(H = 1.083019, P1H = 0.3119674, P2H = 0.2303794, P1 = 1.253033, P2 = 0.4102449, S = 1.257898) #m1 = 0.07
 Initial = c(H = 0.7383519, P1H = 0.2883162, P2H = 0.1024059, P1 = 1.67909, P2 = 0.2674836, S = 0.9609926) #m1 = 0.06
 
 parms_EC_E2H <- c(r = 1, K = 10,
                   a1 = 0.38, a2 = 0.51, psi1 = 0.8, psi2 = 0.8, e1 = 0.5, e2 = 0.5,
-                  b1 = 0.2, b2 = 0.42, m1 = 0.06, m2 = 0.01, e1H = 0.5, e2H = 0.5,
+                  b1 = 0.2, b2 = 0.42, m1 = 0.07, m2 = 0.01, e1H = 0.5, e2H = 0.5,
                   o1 = 0.8, o2 = 0.8, h1 = 1, h2 = 1, c1 = 0.9, c2 = 0.9, d = 0.02, DL = 0)
 
 TimeSeriesInvasion = function(times, state, parms, InvasionTimes){
@@ -158,7 +158,7 @@ TimeSeriesInvasion = function(times, state, parms, InvasionTimes){
   pop_size %>%
     as.data.frame() %>%
     # filter(time %% 1 == 0) %>%
-    #filter(time >= 2400 & time <= 2700) %>% 
+    filter(time >= 8495 & time <= 8520) %>% 
     # mutate(Time_Window = ifelse(time <= 500, "Transient", "Equilibrium")) %>%
     # mutate(Time_Window = factor(Time_Window, levels = c("Transient", "Equilibrium"))) %>%
     pivot_longer(cols = c("H", "P1H", "P2H", "P1", "P2", "S"),
@@ -174,15 +174,22 @@ TimeSeriesInvasion = function(times, state, parms, InvasionTimes){
     theme(
       strip.background = element_blank(),
       strip.text = element_blank(),
-      panel.spacing = unit(0.2, "lines"))+
+      panel.spacing = unit(0.2, "lines"))#+
       #legend.position = "none")#+
-    transition_reveal(along = time)
+    #transition_reveal(along = time)
   #axis.title.y = element_blank(), 
   #axis.text.y = element_blank())
 }
 
 Invasion = 
-  TimeSeriesInvasion(times, Initial, parms_EC_E2H, InvasionTimes = c(500))
+  TimeSeriesInvasion(times, Initial, parms_EC_E2H, InvasionTimes = c(8500))
+
+ggsave("m1 = 007 H = 3 invasion success.png", 
+       plot = Invasion, 
+       bg = "transparent", 
+       width = 1600, 
+       height = 1200, 
+       units = "px")
 
 GIF <- animate(Invasion, 
                bg = 'transparent',
@@ -190,14 +197,4 @@ GIF <- animate(Invasion,
                width = 400, height = 300)
 
 #### Save GIF
-anim_save(filename = "m1 = 006 H = 5p3 invasion success.gif", GIF)
-
-## Patch work-----
-Disturbance + Invasion + 
-  plot_layout(widths = c(0.2)) & 
-  theme(plot.tag = element_text(size = 10, face = "bold"))
-
-Disturbance + labs(tag = "(A)") + Invasion + labs(tag = "(B)") + 
-  plot_layout(guides = "collect") & 
-  theme(legend.position = "bottom", plot.tag = element_text(size = 15, face = "bold"))
-
+anim_save(filename = "m1 = 007 H = 3 invasion success.gif", GIF)

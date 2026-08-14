@@ -13,7 +13,7 @@ parms <- list(r = 1, K = 10,
 
 comp_out = expand.grid(
                        m1 = 0.06,
-                       m2 = seq(0.001, 0.1, by = 0.0001))
+                       m2 = seq(0.001, 0.1, by = 0.001))
 
 #### Create data frame----
 comp_out <- as.data.frame(cbind(comp_out,
@@ -280,5 +280,5 @@ comp_out$Outcome2 = apply(comp_out[, c("H", "P1H", "P2H", "P1", "P2")], 1, funct
 })
 comp_out[which(comp_out$Stable_E == ""), "Stable_E"] = "U"
 
-saveRDS(comp_out, "Pre4A1_d002_psi08_ForBif_Rev (m1 006)")
+saveRDS(comp_out, "Pre4A1_d002_psi08_ForBif_Rev (m1 = m2)")
 View(comp_out)

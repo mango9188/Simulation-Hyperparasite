@@ -1951,7 +1951,7 @@ State_character <- c("inv", "inv", "res", "res")
 #### initial population of invaders
 Inv_init <- 10^-10
 #### simulation time length and resolution
-Time <- seq(0, 1250, by = 0.1)
+Time <- seq(0, 10, by = 0.1)
 #### parms
 parms = list(
   r = 1, K = 10,
@@ -1984,7 +1984,7 @@ Numeric_IGR <- function(state_vars, state_character, model, params, inv_init, ti
   ### Set up
   N1.init <- inv_init
   # Create solutions for different stage structure initial
-  p2.init <- c(0.4, 0.5, 0.6) #0.4, 0.5, 0.6 
+  p2.init <- c(0.1) #0.4, 0.5, 0.6 
   
   all.sols <- 
     data.frame(p2.init = p2.init) %>%
@@ -2040,8 +2040,9 @@ Numeric_IGR <- function(state_vars, state_character, model, params, inv_init, ti
   
   # If you need to visualize and check results, run the following lines
   plot <- ggplot(pcap.df, aes(time, gr1, color = factor(p2.init))) +
-    geom_line(linewidth = 1)+
-    labs(x = "Time", y = "Invasion growth rate", color = expression("Initial Ratio of H and" ~ P[H]))+
+    geom_line(linewidth = 1, color = "black")+
+    labs(x = "Time", y = "Per capita growth rate", color = expression("Initial Ratio of H and" ~ P[H]))+
+    ylim(0.01,NA)+
     theme(legend.position = "bottom")
   return(plot)
   
@@ -2071,5 +2072,5 @@ Numeric_IGR(state_vars = State_vars,
             param = parms,
             inv_init = Inv_init,
             time = Time)
-ggsave("Invasion growth rate of H and PH (2).png", width = 17, height = 12, units = "cm", dpi = 800)
+ggsave("Invasion growth rate of H and PH (3).png", width = 17, height = 12, units = "cm", dpi = 800)
 

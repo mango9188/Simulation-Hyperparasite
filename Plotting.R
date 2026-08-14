@@ -400,7 +400,7 @@ ggplot(D, aes(x = m, y = Abundance, color = Species)) +
   geom_line(filter(D), mapping = aes(x = m, y = Abundance, color = Species), lwd = 1) +
   #geom_line(filter(D, Species == "total"), mapping = aes(x = m1, y = Abundance, color = Species), lwd = 0.8, linetype = 2) +
     #scale_linetype_manual(values = c("Stable" = "solid", "Unstable" = "dashed")) +
-  labs(x = expression(m), y = "Abundance", color = "Species")+
+  labs(x = expression(m), y = "Biomass", color = "Species")+
   scale_y_continuous() +
   scale_x_continuous() + #breaks = c(seq(0.2, 1, by = 0.2))
   scale_colour_manual(labels = State_labels,
