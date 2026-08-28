@@ -374,7 +374,7 @@ D[D[, "Species"] == "SPH_P.total", ]$Group = 2
 #D$Species = factor(D$Species, levels = c("SPH_S", "SP_S"))
 ggplot(D, aes(x = m1, y = Abundance, color = Species)) +
   geom_line(mapping = aes(x = m1, y = Abundance, color = Species), lwd = 1) +
-  labs(x = "Intrinsic mortality rate of pathogen (m)", y = "Biomass", color = "Species")+
+  labs(x = "Pesticide dosage (a)", y = "Biomass", color = "Species")+ #Intrinsic mortality rate of pathogen (m)
   geom_vline(xintercept = 0.0755, color = "black", linetype = 2, linewidth = 0.7) +
   scale_colour_manual(
     breaks = c("SPH_S", "SPH_P", "SPH_PH", "SPH_P.total", "SPH_H"),
@@ -399,7 +399,7 @@ ggplot(D, aes(x = m1, y = Abundance, color = Species)) +
 
 
 ggsave("Poster bifurcation.png", width = 17, height = 12, units = "cm", dpi = 800) #15,10
-ggsave("Result_1 SS Bifurcation plot.png", width = 15, height = 12, units = "cm", dpi = 800) #15,10
+ggsave("Result_1 SS Bifurcation plot (a).png", width = 15, height = 12, units = "cm", dpi = 800) #15,10
 ggsave("15min Bifurcation plot.png", width = 15, height = 11, units = "cm", dpi = 800) #15,10
 
 
@@ -1037,7 +1037,7 @@ ggplot(filter(comp_out_SPPH)) +
         axis.title.y = element_text(size = 12)) +
   coord_fixed(ratio = 1)
 
-#ggsave("Result_3 Multi strain parameterspace with H.png", width = 16, height = 11, units = "cm", dpi = 1600)
+#ggsave("Result_2 Multi strain parameterspace with H.png", width = 16, height = 11, units = "cm", dpi = 1600)
 #ggsave("Poster parameter space.png", width = 20, height = 16, units = "cm", dpi = 1600)
 
 
@@ -1226,8 +1226,8 @@ text_df <- data.frame(
 )
 
 DataC = rbind(D, D2, D3, D4)
-DataC = rbind(D, D3)
-DataC = rbind(D2, D4)
+#DataC = rbind(D, D3)
+#DataC = rbind(D2, D4)
 ggplot()+
   geom_rect(data = rect_df,
             aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = fill_color),
@@ -1237,20 +1237,25 @@ ggplot()+
             aes(x = x, y = y, label = label, color = I(text_color)), # Using I() to hide legend
             parse = TRUE, size = 4, inherit.aes = FALSE, show.legend = FALSE) +
   
-  geom_point(filter(DataC), mapping = aes(x = m1, y = Abundance, color = Species), size = 0.8)+
-  labs(x = expression("Intrinsic mortality rate of mild strain"~(m[1])), y = "Biomass", color = "Species")+
+  geom_point(filter(DataC), mapping = aes(x = m1, y = Abundance, color = Species))+
+  labs(x = expression("Pesticide dosage"~(a)), y = "Biomass", color = "Species")+ #"Intrinsic mortality rate of mild strain"~(m[1])
   ylim(c(0, 4.8))+
   facet_grid(Group ~ ., scales = "fixed")+ #fixed
   #guides(linetype = FALSE)+
   scale_colour_manual(labels = State_labels, values = State_values) +
+  # theme(strip.background = element_blank(),
+  #       strip.text = element_blank(),
+  #       axis.title.y.right = element_text(angle = 90),
+  #       legend.position = "bottom",
+  #       panel.grid.major = element_blank(),
+  #       panel.grid.minor = element_blank())
   theme(strip.background = element_blank(),
         strip.text = element_blank(),
         axis.title.y.right = element_text(angle = 90),
-        legend.position = "bottom",
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())
+        legend.position = "bottom")
 
-#ggsave("Result_3_2 Bifurcation plot of multi-strain system fix m2.png", width = 20, height = 13, units = "cm", dpi = 800)
+
+ggsave("Result_3_2 Bifurcation plot of multi-strain system fix m2 (a).png", width = 20, height = 13, units = "cm", dpi = 800)
 #ggsave("Defense multi-strain Bifurcation plot (For).png", width = 20, height = 13, units = "cm", dpi = 800)
 #ggsave("Defense multi-strain Bifurcation plot (Rev).png", width = 20, height = 13, units = "cm", dpi = 800)
 ggsave("Defense multi-strain Bifurcation plot (All).png", width = 20, height = 13, units = "cm", dpi = 800)
@@ -1341,7 +1346,7 @@ ggplot()+
             parse = TRUE, size = 4, inherit.aes = FALSE, show.legend = FALSE) +
   
   geom_point(filter(DataC), mapping = aes(x = m2, y = Abundance, color = Species))+
-  labs(x = expression("Intrinsic mortality rate of virulent strain"~(m[2])), y = "Biomass", color = "Species")+
+  labs(x = expression("Pesticide dosage"~(a)), y = "Biomass", color = "Species")+ #"Intrinsic mortality rate of virulent strain"~(m[2])
   ylim(c(0, 4.8))+
   facet_grid(Group ~ ., scales = "fixed")+ #fixed
   #guides(linetype = FALSE)+
@@ -1351,7 +1356,7 @@ ggplot()+
         axis.title.y.right = element_text(angle = 90),
         legend.position = "bottom")
 
-ggsave("Result_3_2 Bifurcation plot of multi-strain system fix m1.png", width = 20, height = 13, units = "cm", dpi = 800)
+ggsave("Result_3_2 Bifurcation plot of multi-strain system fix m1 (a).png", width = 20, height = 13, units = "cm", dpi = 800)
 # Result 4_1: the time series invasion/ parameter switching ----
 M2 <- function(times, state, parms) {
   with(as.list(c(state, parms)), {
